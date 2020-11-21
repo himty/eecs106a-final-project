@@ -175,4 +175,10 @@ def prod_exp(xi, theta):
 
     return g
 
+def get_3dto4d(rot, pos):
+    """
+    Puts the rotation matrix and position vector in the right places in a 4d homogenous matirx
+    """
+    return np.vstack((np.hstack((rot, pos.reshape(3, 1))), [0,0,0,1]))
+
 # Deleted the node stuff from lab3 because it's not needed anymore
