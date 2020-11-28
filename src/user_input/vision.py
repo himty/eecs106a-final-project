@@ -77,22 +77,32 @@ class CVSpheres:
         # TODO: Get width (or bbox, or center and radius) of sphere
         self.focalLength = (width * KNOWN_DISTANCE) / KNOWN_WIDTH
 
-    def findCircles(self, img, showImgs=False):
+    def findCircles(self, img, showImgs=False, live=False):
         # ret, frame = self.cap.read()
         hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         
         masks = dict()
         circles = dict()
-        blur_amt = 16
-        houghMinDistance = 15
+        blur_amt = 18
+        houghMinDistance = 20
+
+        maskMainImgs = []
+        imgOutputs = []
+        maskImgs = []
 
         for name, cmd in self.commandColors.items():
             masks[name] = cv2.inRange(hsv_img, cmd.minColor, cmd.maxColor)
+            maskMainImgs.append(masks[name])
+
             maskImg = masks[name]
-            maskImg = cv2.blur(maskImg, (blur_amt,blur_amt), 0)
+            maskImg = cv2.morphologyEx(maskImg, cv2.MORPH_CLOSE, np.ones((20,20),np.uint8))
+            maskImg = cv2.morphologyEx(maskImg, cv2.MORPH_OPEN, np.ones((10,10),np.uint8))
             maskImg = cv2.dilate(maskImg, np.ones((10,10),np.uint8), iterations=1)
+            maskImg = cv2.blur(maskImg, (blur_amt,blur_amt), 0)
+            maskImg = cv2.erode(maskImg, np.ones((10,10),np.uint8), iterations=1)
+            maskImgs.append(maskImg)
             
-            if showImgs:
+            if showImgs and not live:
                 cv2.imshow("blurred", np.hstack([masks[name], maskImg]))
                 cv2.waitKey(0)
 
@@ -107,10 +117,18 @@ class CVSpheres:
                 for (x, y, r) in myCircles2:
                     cv2.circle(output, (x, y), r, (0, 255, 0), 4)
                     cv2.rectangle(output, (x-5, y-5), (x+5, y+5), (0,128,255), -1)
-                cv2.imshow("output", np.hstack([img, output]))
-                cv2.waitKey(0)
+                if not live:
+                    cv2.imshow("output", np.hstack([img, output]))
+                    cv2.waitKey(0)
+                imgOutputs.append(output)
 
             circles[name] = myCircles
+
+        if showImgs and live:
+            cv2.imshow("output-live", np.vstack([
+                np.hstack([img, sum(imgOutputs)]),
+                np.hstack([cv2.cvtColor(sum(maskMainImgs), cv2.COLOR_GRAY2BGR), cv2.cvtColor(sum(maskImgs), cv2.COLOR_GRAY2BGR)])
+            ]))
 
         return circles
 
@@ -142,11 +160,25 @@ if __name__ == '__main__':
         (101, 60, 41),
         (110, 255, 255)
     )
+    ccLime = CommandColor(
+        'testLime',
+        # (56.898, 146.931, 151.011),
+        # (74.484, 255, 233.988),
+        # (74.592, 255, 255),
+        # (81.414, 255, 255),
+        # (56, 146, 151),
+        # (82, 255, 255)
+        (56, 146, 40),
+        (82, 255, 255)
+    )
     
-    cvs = CVSpheres(0, ccBlue)
+    cvs = CVSpheres(0, ccBlue, ccLime)
     # img = cv2.imread('/Users/jessiemindel/Downloads/blue-sphere-calibrate-b2.jpg',1)
     # img = cv2.imread('/Users/jessiemindel/Downloads/two-colors.jpg',1)
-    img = cvs.takePhoto()
-    cv2.imshow('image', img)
-    cv2.waitKey(0)
-    cvs.findCircles(img, showImgs=True)
+
+    while True:
+        img = cvs.takePhoto(ui=False)
+        cvs.findCircles(img, showImgs=True, live=True)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
