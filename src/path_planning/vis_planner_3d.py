@@ -12,7 +12,17 @@ import argparse
 # From https://stackoverflow.com/a/57387909/5901346
 class KeyboardThread(threading.Thread):
 
-    def __init__(self, render_links, name='keyboard-input-thread'):
+    def __init__(self, input_cbk, name='keyboard-input-thread'):
+        self.input_cbk = input_cbk
+        super(KeyboardThread, self).__init__(name=name)
+        self.start()
+
+    def run(self):
+        while True:
+            self.input_cbk(input()) #waits to get input + Return
+
+class VisPlanner3D():
+    def __init__(self, render_links):
         self.render_links = render_links
 
         # stages are get_ee_pos, get_obj_pos
@@ -39,13 +49,14 @@ class KeyboardThread(threading.Thread):
                 size=0.6, origin=[0, 0, 0])
         self.vis.add_geometry(axes)
         self.render_arm()
-        
-        super(KeyboardThread, self).__init__(name=name)
-        self.start()
-
-    def run(self):
-        while True:
-            self.input_cbk(input('Type "reset" to reset view or ' + self.stage2query[self.stage])) #waits to get input + Return
+        print('Legend:')
+        print('- white ball is original end effector position')
+        print('- {} ball is object'.format(self.obj_color['name']))
+        print('- {} ball is closer to object (next step)'.format(self.near_color['name']))
+        print('- {} ball is farther from object (next step)'.format(self.far_color['name']))
+        print('Some balls may overlap')
+        print()
+        print(self.stage2query[self.stage])
 
     def input_cbk(self, inp):
         if self.stage == 'get_ee_pos':
@@ -85,12 +96,14 @@ class KeyboardThread(threading.Thread):
             obj = tinyik.visualizer.create_sphere(far_pos, r=self.sphere_r, color=self.far_color['code'])
             self.vis.add_geometry(obj)
 
-            print('Displayed. {} ball is object, {} ball is near, {} ball is far'.format(
-                        self.obj_color['name'], self.near_color['name'], self.far_color['name']))
+            print('Displayed.')
+            print()
 
             self.stage = 'get_ee_pos'
         else:
             raise ValueError('Unknown stage {}'.format(self.stage))
+
+        print(self.stage2query[self.stage])
 
     def render_arm(self):
         if self.render_links:
@@ -98,7 +111,6 @@ class KeyboardThread(threading.Thread):
             for geo in geos:
                 self.vis.add_geometry(geo)
         else:
-            print('yo')
             ee_pos = self.planner.arm.ee
             ee = tinyik.visualizer.create_sphere(ee_pos, r=self.sphere_r, color=self.ee_color['code'])
             self.vis.add_geometry(ee)
@@ -180,17 +192,18 @@ class KeyboardThread(threading.Thread):
 
 def visualize_3d(render_links):
     # Rendering updates are asynchronous in this thread
-    kthread = KeyboardThread(render_links)
+    vis_3d = VisPlanner3D(render_links)
+    kthread = KeyboardThread(vis_3d.input_cbk)
     while True:
-        kthread.vis.poll_events()
-        kthread.vis.update_renderer()
+        vis_3d.vis.poll_events()
+        vis_3d.vis.update_renderer()
 
     # o3d.visualization.draw_geometries(
     #     geos, window_name='tinyik vizualizer', width=640, height=480)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--no_arm', action='store_false', default=True)
+    parser.add_argument('--no_links', action='store_true') # default is false
     args = parser.parse_args()
 
-    visualize_3d(args.no_arm)
+    visualize_3d(not args.no_links)
