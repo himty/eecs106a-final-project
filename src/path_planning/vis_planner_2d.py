@@ -2,7 +2,7 @@ from path_planner import AlgPathPlanner
 import matplotlib.pyplot as plt
 import numpy as np
 
-def make_onclick(fig, ax, planner):
+def make_2Donclick(fig, ax, planner):
     # yeet higher order functions
     ee_pos = None
     obj_pos = None
@@ -15,7 +15,7 @@ def make_onclick(fig, ax, planner):
         x, y = event.xdata, event.ydata
         if ee_pos is None:
             # Hardcoded z coordinate
-            ee_pos = np.array([x, y, 0])
+            ee_pos = np.array([x, y, 5])
             print('Got end effector pos:', ee_pos)
 
             pts.append(ax.scatter(x, y, label='End Effector'))
@@ -25,7 +25,7 @@ def make_onclick(fig, ax, planner):
             plt.pause(0.1)
         elif obj_pos is None:
             # Hardcoded z coordinate
-            obj_pos = np.array([x, y, 0])
+            obj_pos = np.array([x, y, 5])
             print('Got obj pos:', obj_pos)
 
             pts.append(plt.scatter(x, y, label='Object'))
@@ -60,15 +60,13 @@ def make_onclick(fig, ax, planner):
             print('\n---------------------\n')
     return onclick
 
-
-
 if __name__ == "__main__":
     planner = AlgPathPlanner(2, [])
 
     fig,ax = plt.subplots()
     ax.set_xlim([-10, 10])
     ax.set_ylim([-10, 10])
-    fig.canvas.mpl_connect('button_press_event', make_onclick(fig, ax, planner))
+    fig.canvas.mpl_connect('button_press_event', make_2Donclick(fig, ax, planner))
 
     plt.title('Click where the end effector should go')
     plt.scatter(0, 0, label='Origin')
