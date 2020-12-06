@@ -20,30 +20,26 @@ class CommandColor:
         self.maxColor = maxColor
 
 class Sphere:
-    def __init__(self, cmdName, x, y, z):
+    def __init__(self, cmdName, x, y, z, r, u, v):
         self.cmdName = cmdName
         self.x = x
         self.y = y
         self.z = z
+        self.r = r
+        self.u = u
+        self.v = v
         self.pos = np.array((x, y, z))
+        self.pos2d = np.array((u, v))
 
-# TODO: Possibly modify these values based on our final specs.
-KNOWN_WIDTH = 3.4925 # cm
-KNOWN_DISTANCE = 5.08 # cm
-
-# TODO: Look into perspective projection matrix
-# Depth and x and y, so we'd know how far out it is. So basically multiply x and y by the width, or some multiple of the width, to get the depth. 
-# lambda * homogeneous coordinates = spatial frame yay (maybe calibrate camera matrix first)? Then transform in FK.
-
-# For sphere identification: check max width and min width, and if they're roughly equal, 
-# Use kmeans from scipy for clustering/throwing out outliers. kmeans will give you clusters.
-# Try blob detectors from OpenCV.
-
-# Write a function that tells us the dela between the current position and the desired position
-# Want the coords in base frame, so write a helper function that takes end effector transform and then translates backward a bit.
+# TODO: Modify these values based on our final specs. At this point, not being used in favor of a param in CVSpheres.
+# KNOWN_WIDTH = 3.4925 # cm
+# KNOWN_DISTANCE = 5.08 # cm
 
 class CVSpheres:
-    def __init__(self, hardwareCameraId, *commandColors):
+    def __init__(self, hardwareCameraId, knownWidth, knownDistance, *commandColors):
+        self.knownWidth = knownWidth
+        self.knownDistance = knownDistance
+
         self.cap = cv2.VideoCapture(hardwareCameraId)
         self.focalLength = -1.0 # Should be initialized by self.calibrate
 
@@ -65,17 +61,24 @@ class CVSpheres:
         return frame
 
     # Source (also for calibration): https://www.pyimagesearch.com/2015/01/19/find-distance-camera-objectmarker-using-python-opencv/
-    def __zDistanceToCamera(self, knownWidth, focalLength, perceivedWidth):
-        return (knownWidth * focalLength) / perceivedWidth
+    def __zDistanceToCamera(self, perceivedWidth):
+        return (self.knownWidth * self.focalLength) / perceivedWidth
 
     # Calibration should only need to run once, but choose a color with which to do it so we know what to look for.
     # User should be able to trigger when the photo is taken, or perhaps just use a photo already taken in (specify image name).
-    def calibrate(self, cmdName):
-        # TODO: Take photo
+    def calibrate(self, cmdName, img):
+        # Find sphere in photo
+        circles = self.findCircles(img)[cmdName]
+        if circles is None or len(circles) == 0:
+            print(f"Failed to calibrate {cmdName}: could not find any circles of that type.")
+            return False # Failed
         
-        # TODO: Find sphere in photo
-        # TODO: Get width (or bbox, or center and radius) of sphere
-        self.focalLength = (width * KNOWN_DISTANCE) / KNOWN_WIDTH
+        # Get width (or bbox, or center and radius) of sphere
+        (x, y, r) = circles[0]
+        width = r * 2.0
+        self.focalLength = (width * self.knownDistance) / self.knownWidth
+        self.pixelToRealRatio = self.knownDistance / self.knownWidth
+        return True # Succeeded
 
     def findCircles(self, img, showImgs=False, live=False):
         # ret, frame = self.cap.read()
@@ -83,6 +86,8 @@ class CVSpheres:
         
         masks = dict()
         circles = dict()
+
+        # FIXME: Going forward, we might want to generate parameters based instead on the size of the largest blob.
         blur_amt = 18
         houghMinDistance = 20
 
@@ -106,7 +111,6 @@ class CVSpheres:
                 cv2.imshow("blurred", np.hstack([masks[name], maskImg]))
                 cv2.waitKey(0)
 
-            # FIXME: 100 should be based instead on the size of the largest blob.
             myCircles = cv2.HoughCircles(maskImg, cv2.HOUGH_GRADIENT, 1.2, houghMinDistance) # TODO: Tweak these parameters further
             if myCircles is None:
                 print(f"No circles found for command {name}")
@@ -132,49 +136,58 @@ class CVSpheres:
 
         return circles
 
+    # TODO: Note that this is untested! Will test soon, but wanted to push this for now.
+    def findSpheres(self, circles):
+        # Convert circles to spheres
+        spheres = []
+        for cmdName in circles:
+            for x, y, r in circles[cmdName]:
+                # Get depth
+                depth = self.__zDistanceToCamera()
+                # Convert x, y to camera coords
+                X = depth * x
+                Y = depth * y
+                Z = depth
+                # Convert r to real width, if that's even necessary
+                R = (2.0 * r) / self.pixelToRealRatio
+                spheres.append(Sphere(cmdName, X, Y, Z, R, x, y))
+        return spheres
+
+    def toEndEffectorCoords(self, x, y, z):
+        # TODO: Depends on final length of robot arm and position of camera relative to end effector. Should be a simple translation.
+        pass
+
+    def toSpatialCoords(self, g_st, x, y, z):
+        pEndEffector = self.toEndEffectorCoords(x, y, z)
+        # Go back from tool frame to spatial frame
+        return np.matmul(g_st, pEndEffector)
+
+# You'll need to choose your own colors based on lighting conditions and the ping pong ball colors we get.
+# I highly recommend having two different thresholds per ping pong ball: one for daytime, one for nighttime.
+# Then, just keep lighting conditions consistent between those two environments, and you're set!
 if __name__ == '__main__':
     ccOrange = CommandColor(
-            'testOrange',
-            # (0.0470 * 180.0, 0.4490 * 255, 0.9608 * 255),
-            # (0.0259 * 180.0, 0.7518 * 255, 0.5373 * 255)
-            (4, 113, 136),
-            (8, 193, 245)
-            # (2, 100, 120),
-            # (10, 200, 255)
-        )
+        'testOrange',
+        (4, 113, 136),
+        (8, 193, 245)
+    )
     ccPureBlue = CommandColor(
         'testPureBlue',
-        # (0.6296 * 180.0, 0.9551 * 255, 0.9608 * 255),
-        # (0.6324 * 180.0, 0.8726 * 255, 0.8314 * 255)
         (112, 222, 212),
         (114, 246, 246)
     )
     ccBlue = CommandColor(
         'testBlue',
-        # (104.994, 60.384, 227.9955),
-        # (102.582, 192.8055, 41.004)
-        # (101, 60, 41),
-        # (105, 245, 228)
-        # (101, 60, 41),
-        # (105, 245, 228)
         (101, 60, 41),
         (110, 255, 255)
     )
     ccLime = CommandColor(
         'testLime',
-        # (56.898, 146.931, 151.011),
-        # (74.484, 255, 233.988),
-        # (74.592, 255, 255),
-        # (81.414, 255, 255),
-        # (56, 146, 151),
-        # (82, 255, 255)
         (56, 146, 40),
         (82, 255, 255)
     )
     
     cvs = CVSpheres(0, ccBlue, ccLime)
-    # img = cv2.imread('/Users/jessiemindel/Downloads/blue-sphere-calibrate-b2.jpg',1)
-    # img = cv2.imread('/Users/jessiemindel/Downloads/two-colors.jpg',1)
 
     while True:
         img = cvs.takePhoto(ui=False)
