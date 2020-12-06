@@ -31,6 +31,9 @@ class Sphere:
         self.pos = np.array((x, y, z))
         self.pos2d = np.array((u, v))
 
+    def toString(self):
+        return f"{self.cmdName} of radius {self.r} at spatial ({self.x}, {self.y}, {self.z}) and at camera ({self.u}, {self.v})"
+
 class CVSpheres:
     def __init__(self, hardwareCameraId, knownWidth, knownDistance, *commandColors):
         self.knownWidth = knownWidth
@@ -108,11 +111,12 @@ class CVSpheres:
                 cv2.waitKey(0)
 
             myCircles = cv2.HoughCircles(maskImg, cv2.HOUGH_GRADIENT, 1.2, houghMinDistance) # TODO: Tweak these parameters further
+            myCircles = myCircles if myCircles is None else myCircles[0]
             if myCircles is None:
                 print(f"No circles found for command {name}")
             
             if showImgs:
-                myCircles2 = [] if myCircles is None else np.round(myCircles[0, :]).astype('int')
+                myCircles2 = [] if myCircles is None else np.round(myCircles).astype('int')
                 output = cv2.bitwise_and(img, img, mask=masks[name])
                 for (x, y, r) in myCircles2:
                     cv2.circle(output, (x, y), r, (0, 255, 0), 4)
@@ -134,12 +138,17 @@ class CVSpheres:
 
     # TODO: Note that this is untested! Will test soon, but wanted to push this for now.
     def findSpheres(self, circles):
+        if circles is None:
+            return []
         # Convert circles to spheres
         spheres = []
         for cmdName in circles:
-            for x, y, r in circles[cmdName]:
+            if circles[cmdName] is None or len(circles[cmdName]) == 0:
+                continue
+            for circle in circles[cmdName]:
+                x, y, r = circle
                 # Get depth
-                depth = self.__zDistanceToCamera()
+                depth = self.__zDistanceToCamera(2.0 * r)
                 # Convert x, y to camera coords
                 X = depth * x
                 Y = depth * y
@@ -196,11 +205,17 @@ if __name__ == '__main__':
     
     KNOWN_WIDTH = 3.4925 # cm
     KNOWN_DISTANCE = 5.08 # cm
-    cvs = CVSpheres(0, KNOWN_WIDTH, KNOWN_DISTANCE, ccBlueShinyDay, ccLimeMatteDay)
+    cvs = CVSpheres(0, KNOWN_WIDTH, KNOWN_DISTANCE, ccBlueShinyDay) # Currently only supports all objects being the same size.
+    cvs.calibrate('testBlue', cv2.imread('/Users/jessiemindel/Downloads/blue-sphere-calibrate-b2.jpg', 1))
 
     while True:
         img = cvs.takePhoto(ui=False)
-        cvs.findCircles(img, showImgs=True, live=True)
+        circles = cvs.findCircles(img, showImgs=True, live=True)
+        # TODO: Take largest circle
+        spheres = cvs.findSpheres(circles)
+        for sphere in spheres:
+            print(sphere.toString())
+        print()
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
