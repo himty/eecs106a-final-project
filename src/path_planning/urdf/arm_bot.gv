@@ -1,0 +1,17 @@
+digraph G {
+node [shape=box];
+"base1" [label="base1"];
+"base2" [label="base2"];
+"link1" [label="link1"];
+"link2" [label="link2"];
+"link3" [label="link3"];
+node [shape=ellipse, color=blue, fontcolor=blue];
+"base1" -> "base_rotate" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"base_rotate" -> "base2"
+"base2" -> "joint1" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"joint1" -> "link1"
+"link1" -> "joint2" [label="xyz: 0 2 5 \nrpy: 0 -0 0"]
+"joint2" -> "link2"
+"link2" -> "joint3" [label="xyz: 0 12 5 \nrpy: 0 -0 0"]
+"joint3" -> "link3"
+}

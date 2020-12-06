@@ -1,0 +1,4 @@
+# Needs python version < 3.9 to install open3d
+
+tinyik
+open3d==0.10.0.0 # Newer versions seem to have some memory leak
