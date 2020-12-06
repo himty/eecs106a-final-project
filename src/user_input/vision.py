@@ -31,10 +31,6 @@ class Sphere:
         self.pos = np.array((x, y, z))
         self.pos2d = np.array((u, v))
 
-# TODO: Modify these values based on our final specs. At this point, not being used in favor of a param in CVSpheres.
-# KNOWN_WIDTH = 3.4925 # cm
-# KNOWN_DISTANCE = 5.08 # cm
-
 class CVSpheres:
     def __init__(self, hardwareCameraId, knownWidth, knownDistance, *commandColors):
         self.knownWidth = knownWidth
@@ -186,8 +182,21 @@ if __name__ == '__main__':
         (56, 146, 40),
         (82, 255, 255)
     )
+
+    ccBlueShinyDay = CommandColor(
+        'testBlue',
+        (94, 31, 101),
+        (108, 255, 252)
+    )
+    ccLimeMatteDay = CommandColor(
+        'testLime',
+        (27, 64, 101),
+        (55, 218, 212)
+    )
     
-    cvs = CVSpheres(0, ccBlue, ccLime)
+    KNOWN_WIDTH = 3.4925 # cm
+    KNOWN_DISTANCE = 5.08 # cm
+    cvs = CVSpheres(0, KNOWN_WIDTH, KNOWN_DISTANCE, ccBlueShinyDay, ccLimeMatteDay)
 
     while True:
         img = cvs.takePhoto(ui=False)
