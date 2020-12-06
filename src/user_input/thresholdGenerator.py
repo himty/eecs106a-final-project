@@ -52,7 +52,7 @@ def generateThresholdsMany(bgrImgs, threshold=0, verbose=False):
 	return ((hMin, sMin, vMin), (hMax, sMax, vMax))
 
 if __name__ == '__main__':
-	if len(sys.argv) == 0:
+	if len(sys.argv) < 2:
 		print('Usage: thresholdGenerator.py <filename> <threshold>\nInput an image file, all of whose pixels are black, except for the pixels whose colors you\'d like to threshold.\nThreshold is the minimum value required for the item to be considered to be not a black pixel. 0 by default.')
 		sys.exit(1)
 
