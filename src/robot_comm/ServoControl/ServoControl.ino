@@ -22,17 +22,23 @@
 #include <ros.h>
 #include <std_msgs/UInt16.h>
 
-ros::NodeHandle  nh;
+ros::NodeHandle nh; //node handle for serial communication
 
-Servo servo;
+Servo servo1;
+Servo servo2;
+Servo servo3; //a stepper motor in reality
 
 void servo_cb( const std_msgs::UInt16& cmd_msg){
-  servo.write(cmd_msg.data); //set servo angle, should be from 0-180  
+
+	
+  servo1.write(cmd_msg.data); //set servo angle, should be from 0-180 
+  servo2.write();
+  servo3.write();
   digitalWrite(13, HIGH-digitalRead(13));  //toggle led  
 }
 
 
-ros::Subscriber<std_msgs::UInt16> sub("servo", servo_cb);
+ros::Subscriber<std_msgs::UInt16> sub("cmd_angle", servo_cb);
 
 void setup(){
   pinMode(13, OUTPUT);
@@ -40,7 +46,9 @@ void setup(){
   nh.initNode();
   nh.subscribe(sub);
   
-  servo.attach(9); //attach it to pin 9
+  servo1.attach(9); //attach it to pin 9
+  servo2.attach(10); 
+  servo3.attach(11); 
 }
 
 void loop(){
