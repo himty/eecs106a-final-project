@@ -1,0 +1,6 @@
+<robot file="arm_bot.dae">
+  <Manipulator name="arm_bot">
+    <base>base1</base>
+    <effector>link3</effector>
+  </Manipulator>
+</robot>
