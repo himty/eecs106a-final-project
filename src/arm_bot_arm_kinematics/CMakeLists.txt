@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(arm_bot_ikfast_arm_plugin)
+project(arm_bot_arm_kinematics)
 
 add_compile_options(-std=c++11)
 

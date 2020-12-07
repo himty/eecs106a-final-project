@@ -55,9 +55,25 @@ sudo apt-get install ros-kinetic-joint-state-publisher-gui
 
 - `rosrun moveit_commander moveit_commander_cmdline.py`- Start the MoveIt! Commander commandline tool for nice data http://docs.ros.org/en/kinetic/api/moveit_tutorials/html/doc/moveit_commander_scripting/moveit_commander_scripting_tutorial.html
 
-- `openrave0.9.py --database inversekinematics --robot=arm_bot_wrapper.xml --iktype=translationzaxisangle4d --iktests=1000`- Create an IKFast solution. The XML wrapper is a solution from https://answers.ros.org/question/263925/generating-an-ikfast-solution-for-4-dof-arm/ and the type of solution translationzaxisangle4d, which is picked from here http://openrave.org/docs/latest_stable/openravepy/ikfast/#ik-types . The file appears in \~/.openrave
+- `openrave0.9.py --database inversekinematics --robot=arm_bot_wrapper.xml --iktype=translationzaxisangle4d --iktests=1000`- Create an IKFast solution. The XML wrapper is a workaround from https://answers.ros.org/question/263925/generating-an-ikfast-solution-for-4-dof-arm/ and the type of solution translationzaxisangle4d, which is picked from here http://openrave.org/docs/latest_stable/openravepy/ikfast/#ik-types . The file appears in \~/.openrave. I put this output into path_planning/urdf
 
-- `roslaunch arm_bot_moveit_config demo.launch rviz_tutorial:=true`- Visualize the ikfast planner in RViz
+- `rosrun moveit_kinematics create_ikfast_moveit_plugin.py arm_bot arm arm_bot_arm_kinematics `pwd`/kinematics.c7db6c67e555d156ee590ef3d3726851/ikfast0x10000049.TranslationZAxisAngle4D.0_1_2_3.cpp` - where the kinematics.c7db.. stuff is the output of the openrave command that was originally created in \~/.openrave. TO create the ikfast moveit plugin package for use by the semantic robot description (set up with setup_assistant above)
+
+- `roslaunch arm_bot_moveit_config demo.launch`- Visualize the ikfast planner in RViz
+
+### Bugfixes to the template code done along the way
+
+- Follow https://answers.ros.org/question/342725/moveit-and-4-dof-arm/?answer=343951#post-id-343951 and implement the IKP_TranslationXAxisAngle4D, IKP_TranslationYAxisAngle4D, and IKP_TranslationZAxisAngle4D cases in arm_bot_arm_kinematics/src/arm_bot_arm_ikfast_moveit_plugin.cpp. Weird how it's not implemented when ikfast was run specifically for a 4DOF robot
+
+### Running the system
+
+- `roslaunch path_planning arm_bot_publish.launch`
+
+To visualize:
+- `roslaunch path_planning arm_bot_rviz.launch`
+
+To send test pose targets:
+- `rosrun path_planning path_test.py`
 
 ## tinyik
 

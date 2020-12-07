@@ -77,15 +77,20 @@ class PathPlanner(object):
         Outputs:
         path: A moveit_msgs/RobotTrajectory path
         """
-
+        import pdb
+        pdb.set_trace()
+        #self._group.set_joint_value_target([1, 1, 1, 1])
+        #self._group.set_position_target([1, 2, 3])
+        self._group.set_goal_orientation_tolerance(1)
         self._group.set_pose_target(target)
         self._group.set_start_state_to_current_state()
 
-        constraints = Constraints()
-        constraints.orientation_constraints = orientation_constraints
-        self._group.set_path_constraints(constraints)
+        #constraints = Constraints()
+        #constraints.orientation_constraints = orientation_constraints
+        #self._group.set_path_constraints(constraints)
 
         plan = self._group.plan()
+        print('plan', plan)
 
         return plan
 

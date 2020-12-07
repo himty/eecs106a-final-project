@@ -4,15 +4,15 @@
 		<contributor>
 			<authoring_tool>URDF Collada Writer</authoring_tool>
 		</contributor>
-		<created>2020-12-06T00:33:53.000000</created>
-		<modified>2020-12-06T00:33:53.000000</modified>
+		<created>2020-12-06T22:19:54.000000</created>
+		<modified>2020-12-06T22:19:54.000000</modified>
 		<unit/>
 		<up_axis>Z_UP</up_axis>
 	</asset>
 	<library_visual_scenes id="vscenes">
 		<visual_scene id="vscene" name="URDF Visual Scene">
 			<node id="visual0" name="arm_bot" sid="visual0">
-				<node id="vkmodel0_node5" name="world" sid="node5">
+				<node id="vkmodel0_node6" name="world" sid="node6">
 					<translate>0 0 0</translate>
 					<rotate>1 0 0 0</rotate>
 					<node id="vkmodel0_node0" name="base1" sid="node0">
@@ -45,7 +45,7 @@
 									</technique_common>
 								</bind_material>
 							</instance_geometry>
-							<node id="vkmodel0_node2" name="link1" sid="node2">
+							<node id="vkmodel0_node3" name="link1" sid="node3">
 								<translate>-0 -0 -2.5</translate>
 								<rotate>1 0 0 0</rotate>
 								<translate>0 0 5</translate>
@@ -60,7 +60,7 @@
 										</technique_common>
 									</bind_material>
 								</instance_geometry>
-								<node id="vkmodel0_node3" name="link2" sid="node3">
+								<node id="vkmodel0_node4" name="link2" sid="node4">
 									<translate>-0 -1 -0</translate>
 									<rotate>1 0 0 0</rotate>
 									<translate>0 2 0</translate>
@@ -75,7 +75,7 @@
 											</technique_common>
 										</bind_material>
 									</instance_geometry>
-									<node id="vkmodel0_node4" name="link3" sid="node4">
+									<node id="vkmodel0_node5" name="link3" sid="node5">
 										<translate>-0 -5 -0</translate>
 										<rotate>1 0 0 0</rotate>
 										<translate>0 10 0</translate>
@@ -90,6 +90,15 @@
 												</technique_common>
 											</bind_material>
 										</instance_geometry>
+										<node id="vkmodel0_node2" name="end_effector_link" sid="node2">
+											<translate>-0 -4 -0</translate>
+											<rotate>1 0 0 0</rotate>
+											<translate>0 8 0</translate>
+											<rotate>1 0 0 0</rotate>
+											<rotate sid="node_end_effector_joint_axis0">0 0 0 0</rotate>
+											<translate>0 0 0</translate>
+											<rotate>1 0 0 0</rotate>
+										</node>
 									</node>
 								</node>
 							</node>
@@ -388,6 +397,15 @@
 						<axis>0 0 1</axis>
 					</revolute>
 				</joint>
+				<joint name="end_effector_joint" sid="end_effector_joint">
+					<revolute sid="axis0">
+						<axis>0 0 0</axis>
+						<limits>
+							<min>0</min>
+							<max>0</max>
+						</limits>
+					</revolute>
+				</joint>
 				<joint name="fixed" sid="fixed">
 					<revolute sid="axis0">
 						<axis>0 0 0</axis>
@@ -444,7 +462,13 @@
 													<attachment_full joint="kmodel0/joint3">
 														<translate>0 10 0</translate>
 														<rotate>1 0 0 0</rotate>
-														<link sid="link3" name="link3"/>
+														<link sid="link3" name="link3">
+															<attachment_full joint="kmodel0/end_effector_joint">
+																<translate>0 8 0</translate>
+																<rotate>1 0 0 0</rotate>
+																<link sid="end_effector_link" name="end_effector_link"/>
+															</attachment_full>
+														</link>
 													</attachment_full>
 												</link>
 											</attachment_full>
@@ -470,6 +494,12 @@
 					</newparam>
 					<newparam sid="robot0_motion_robot0_kinematics_kmodel0_inst_base_rotate_axis0_value">
 						<SIDREF>robot0_kinematics/robot0_kinematics_kmodel0_inst_base_rotate_axis0_value</SIDREF>
+					</newparam>
+					<newparam sid="robot0_motion_robot0_kinematics_kmodel0_inst_end_effector_joint_axis0">
+						<SIDREF>robot0_kinematics/robot0_kinematics_kmodel0_inst_end_effector_joint_axis0</SIDREF>
+					</newparam>
+					<newparam sid="robot0_motion_robot0_kinematics_kmodel0_inst_end_effector_joint_axis0_value">
+						<SIDREF>robot0_kinematics/robot0_kinematics_kmodel0_inst_end_effector_joint_axis0_value</SIDREF>
 					</newparam>
 					<newparam sid="robot0_motion_robot0_kinematics_kmodel0_inst_fixed_axis0">
 						<SIDREF>robot0_kinematics/robot0_kinematics_kmodel0_inst_fixed_axis0</SIDREF>
@@ -499,14 +529,7 @@
 				<technique_common>
 					<axis_info axis="robot0_kinematics/axis_info_inst0"/>
 					<axis_info axis="robot0_kinematics/axis_info_inst1"/>
-					<axis_info axis="robot0_kinematics/axis_info_inst2">
-						<speed>
-							<float>3</float>
-						</speed>
-						<acceleration>
-							<float>100</float>
-						</acceleration>
-					</axis_info>
+					<axis_info axis="robot0_kinematics/axis_info_inst2"/>
 					<axis_info axis="robot0_kinematics/axis_info_inst3">
 						<speed>
 							<float>3</float>
@@ -516,6 +539,14 @@
 						</acceleration>
 					</axis_info>
 					<axis_info axis="robot0_kinematics/axis_info_inst4">
+						<speed>
+							<float>3</float>
+						</speed>
+						<acceleration>
+							<float>100</float>
+						</acceleration>
+					</axis_info>
+					<axis_info axis="robot0_kinematics/axis_info_inst5">
 						<speed>
 							<float>3</float>
 						</speed>
@@ -536,6 +567,12 @@
 						<SIDREF>robot0_kinematics/kmodel0_inst/base_rotate/axis0</SIDREF>
 					</newparam>
 					<newparam sid="robot0_kinematics_kmodel0_inst_base_rotate_axis0_value">
+						<float>0</float>
+					</newparam>
+					<newparam sid="robot0_kinematics_kmodel0_inst_end_effector_joint_axis0">
+						<SIDREF>robot0_kinematics/kmodel0_inst/end_effector_joint/axis0</SIDREF>
+					</newparam>
+					<newparam sid="robot0_kinematics_kmodel0_inst_end_effector_joint_axis0_value">
 						<float>0</float>
 					</newparam>
 					<newparam sid="robot0_kinematics_kmodel0_inst_fixed_axis0">
@@ -572,7 +609,7 @@
 							<bool>false</bool>
 						</locked>
 					</axis_info>
-					<axis_info sid="axis_info_inst1" axis="kmodel0/fixed/axis0">
+					<axis_info sid="axis_info_inst1" axis="kmodel0/end_effector_joint/axis0">
 						<active>
 							<bool>false</bool>
 						</active>
@@ -588,7 +625,23 @@
 							</max>
 						</limits>
 					</axis_info>
-					<axis_info sid="axis_info_inst2" axis="kmodel0/joint1/axis0">
+					<axis_info sid="axis_info_inst2" axis="kmodel0/fixed/axis0">
+						<active>
+							<bool>false</bool>
+						</active>
+						<locked>
+							<bool>false</bool>
+						</locked>
+						<limits>
+							<min>
+								<float>0</float>
+							</min>
+							<max>
+								<float>0</float>
+							</max>
+						</limits>
+					</axis_info>
+					<axis_info sid="axis_info_inst3" axis="kmodel0/joint1/axis0">
 						<active>
 							<bool>true</bool>
 						</active>
@@ -604,7 +657,7 @@
 							</max>
 						</limits>
 					</axis_info>
-					<axis_info sid="axis_info_inst3" axis="kmodel0/joint2/axis0">
+					<axis_info sid="axis_info_inst4" axis="kmodel0/joint2/axis0">
 						<active>
 							<bool>true</bool>
 						</active>
@@ -620,7 +673,7 @@
 							</max>
 						</limits>
 					</axis_info>
-					<axis_info sid="axis_info_inst4" axis="kmodel0/joint3/axis0">
+					<axis_info sid="axis_info_inst5" axis="kmodel0/joint3/axis0">
 						<active>
 							<bool>true</bool>
 						</active>
@@ -651,6 +704,12 @@
 				</bind>
 				<bind symbol="kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_base_rotate_axis0_value">
 					<param ref="robot0_motion/robot0_motion_robot0_kinematics_kmodel0_inst_base_rotate_axis0_value"/>
+				</bind>
+				<bind symbol="kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_end_effector_joint_axis0">
+					<param ref="robot0_motion/robot0_motion_robot0_kinematics_kmodel0_inst_end_effector_joint_axis0"/>
+				</bind>
+				<bind symbol="kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_end_effector_joint_axis0_value">
+					<param ref="robot0_motion/robot0_motion_robot0_kinematics_kmodel0_inst_end_effector_joint_axis0_value"/>
 				</bind>
 				<bind symbol="kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_fixed_axis0">
 					<param ref="robot0_motion/robot0_motion_robot0_kinematics_kmodel0_inst_fixed_axis0"/>
@@ -688,6 +747,7 @@
 				<instance_rigid_body body="rigid3" target="#vkmodel0_node3"/>
 				<instance_rigid_body body="rigid4" target="#vkmodel0_node4"/>
 				<instance_rigid_body body="rigid5" target="#vkmodel0_node5"/>
+				<instance_rigid_body body="rigid6" target="#vkmodel0_node6"/>
 			</instance_physics_model>
 			<technique_common>
 				<gravity>0 0 0</gravity>
@@ -718,7 +778,10 @@
 					<inertia>0.03 0.03 0.03</inertia>
 				</technique_common>
 			</rigid_body>
-			<rigid_body sid="rigid2" name="link1">
+			<rigid_body sid="rigid2" name="end_effector_link">
+				<technique_common/>
+			</rigid_body>
+			<rigid_body sid="rigid3" name="link1">
 				<technique_common>
 					<dynamic>true</dynamic>
 					<mass>0.1</mass>
@@ -729,7 +792,7 @@
 					<inertia>0.03 0.03 0.03</inertia>
 				</technique_common>
 			</rigid_body>
-			<rigid_body sid="rigid3" name="link2">
+			<rigid_body sid="rigid4" name="link2">
 				<technique_common>
 					<dynamic>true</dynamic>
 					<mass>0.1</mass>
@@ -740,7 +803,7 @@
 					<inertia>0.03 0.03 0.03</inertia>
 				</technique_common>
 			</rigid_body>
-			<rigid_body sid="rigid4" name="link3">
+			<rigid_body sid="rigid5" name="link3">
 				<technique_common>
 					<dynamic>true</dynamic>
 					<mass>0.1</mass>
@@ -751,7 +814,7 @@
 					<inertia>0.03 0.03 0.03</inertia>
 				</technique_common>
 			</rigid_body>
-			<rigid_body sid="rigid5" name="world">
+			<rigid_body sid="rigid6" name="world">
 				<technique_common/>
 			</rigid_body>
 		</physics_model>
@@ -760,15 +823,23 @@
 		<instance_physics_scene url="#pscene"/>
 		<instance_visual_scene url="#vscene"/>
 		<instance_kinematics_scene url="#kscene">
-			<bind_kinematics_model node="visual0/node5">
+			<bind_kinematics_model node="visual0/node6">
 				<param>kscene_kmodel0_inst</param>
 			</bind_kinematics_model>
-			<bind_joint_axis target="node5/node1/node_base_rotate_axis0">
+			<bind_joint_axis target="node6/node1/node_base_rotate_axis0">
 				<axis>
 					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_base_rotate_axis0</param>
 				</axis>
 				<value>
 					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_base_rotate_axis0_value</param>
+				</value>
+			</bind_joint_axis>
+			<bind_joint_axis target="node6/node0/node1/node3/node4/node2/node_end_effector_joint_axis0">
+				<axis>
+					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_end_effector_joint_axis0</param>
+				</axis>
+				<value>
+					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_end_effector_joint_axis0_value</param>
 				</value>
 			</bind_joint_axis>
 			<bind_joint_axis target="node0/node_fixed_axis0">
@@ -779,7 +850,7 @@
 					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_fixed_axis0_value</param>
 				</value>
 			</bind_joint_axis>
-			<bind_joint_axis target="node5/node0/node2/node_joint1_axis0">
+			<bind_joint_axis target="node6/node0/node3/node_joint1_axis0">
 				<axis>
 					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_joint1_axis0</param>
 				</axis>
@@ -787,7 +858,7 @@
 					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_joint1_axis0_value</param>
 				</value>
 			</bind_joint_axis>
-			<bind_joint_axis target="node5/node0/node1/node3/node_joint2_axis0">
+			<bind_joint_axis target="node6/node0/node1/node4/node_joint2_axis0">
 				<axis>
 					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_joint2_axis0</param>
 				</axis>
@@ -795,7 +866,7 @@
 					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_joint2_axis0_value</param>
 				</value>
 			</bind_joint_axis>
-			<bind_joint_axis target="node5/node0/node1/node2/node4/node_joint3_axis0">
+			<bind_joint_axis target="node6/node0/node1/node3/node5/node_joint3_axis0">
 				<axis>
 					<param>kscene_kmodel0_inst_robot0_kinematics_kmodel0_inst_joint3_axis0</param>
 				</axis>
