@@ -8,11 +8,11 @@ import rospy
 #import pathplanning package
 #import CV package
 
-from robot_comm.msg import AngleArr
+from robot_comm_msg.msg import AngleArr
 
 def cmd_angle():
 
-	pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
+    pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
     
     r = rospy.Rate(10) # 10hz
 
