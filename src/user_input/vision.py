@@ -191,7 +191,6 @@ class CVSpheres:
 
         return circles
 
-    # TODO: Note that this is untested! Will test soon, but wanted to push this for now.
     def findSpheres(self, circles):
         if circles is None:
             return []
@@ -217,12 +216,22 @@ class CVSpheres:
 
     def toEndEffectorCoords(self, x, y, z):
         # TODO: Depends on final length of robot arm and position of camera relative to end effector. Should be a simple translation.
-        pass
+        return np.array([x,y,z])
 
     def toSpatialCoords(self, g_st, x, y, z):
         pEndEffector = self.toEndEffectorCoords(x, y, z)
         # Go back from tool frame to spatial frame
         return np.matmul(g_st, pEndEffector)
+
+    def step(self, g_st):
+        img = self.takePhoto(ui=False)
+        circles = self.findCircles(img, largestOnly=True, showImgs=True, live=True)
+        spheres = self.findSpheres(circles)
+        transformedSpheres = []
+        for s in spheres:
+            X = self.toSpatialCoords(g_st, s.x, s.y, s.z)
+            transformedSpheres.append(Sphere(s.cmdName, X[0], X[1], X[2], s.r, s.u, s.v))
+        return transformedSpheres
 
 # You'll need to choose your own colors based on lighting conditions and the ping pong ball colors we get.
 # I highly recommend having two different thresholds per ping pong ball: one for daytime, one for nighttime.
@@ -285,5 +294,4 @@ if __name__ == '__main__':
 
     # TODO: Write a node that runs this and outputs it
     # TODO: Support rosbag stuff
-    # TODO: Roll it all together into one function
 
