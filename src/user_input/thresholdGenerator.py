@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 import sys
-import os
+
+from imgUtils import readImgsFromFolder
 
 def generateThresholds(bgrImg, threshold=0, verbose=False):
 	hsvImg = cv2.cvtColor(bgrImg, cv2.COLOR_BGR2HSV)
@@ -61,15 +62,11 @@ if __name__ == '__main__':
 		threshold = int(sys.argv[2])
 
 	filename = sys.argv[1]
-	if os.path.isfile(filename):
-		img = cv2.imread(filename)
+	imgs, filenames = readImgsFromFolder(filename)
+	if len(imgs) == 1:
 		print(f"Finding color thresholding bounds with minimum value {threshold} for masked file \"{filename}\"...")
-		generateThresholds(img, threshold=threshold, verbose=True)
-	elif os.path.isdir(filename):
-		filenames = [os.path.join(filename, f) for f in os.listdir(filename) if os.path.isfile(os.path.join(filename, f)) and f[0] != '.']
-		imgs = []
-		for f in filenames:
-			imgs.append(cv2.imread(f))
+		generateThresholds(imgs[0], threshold=threshold, verbose=True)
+	elif len(imgs) > 1:
 		print(f"Finding color thresholding bounds with minimum value {threshold} for the following masked files:")
 		for f in filenames:
 			print(f)
