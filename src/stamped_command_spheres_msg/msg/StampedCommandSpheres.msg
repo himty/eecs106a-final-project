@@ -1,0 +1,2 @@
+command_sphere_msg/CommandSphere[] spheres
+float32 timestamp

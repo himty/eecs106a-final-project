@@ -1,8 +1,10 @@
 import rospy
-from vision.msgs import CommandSphere, StampedCommandSpheres
-import sys
-from vision import CVSpheres
 import cv2
+import sys
+
+from command_sphere_msg.msg import CommandSphere
+from stamped_command_spheres_msg.msg import StampedCommandSpheres
+from vision import CVSpheres
 
 def runVision(filename):
 	# Load data and calibrate
