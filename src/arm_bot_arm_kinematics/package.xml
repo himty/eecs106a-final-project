@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <package format="2">
-  <name>arm_bot_ikfast_arm_plugin</name>
+  <name>arm_bot_arm_kinematics</name>
   <version>0.0.0</version>
   <description>The arm_bot_ikfast_arm_plugin package</description>
   <!-- One maintainer tag required, multiple allowed, one person per tag -->

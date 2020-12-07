@@ -36,28 +36,28 @@ def main():
 
 	# Initialize the controller for Part 5
 
-	controller = Controller(Kp, Ki, Kd, Kw, Limb("link3"))
+	#controller = Controller(Kp, Ki, Kd, Kw, Limb("link3"))
 
 	#-----------------------------------------------------#
 	## Add any obstacles to the planning scene here
 	#-----------------------------------------------------#
-	obstacle = PoseStamped()
-	obstacle.header.frame_id = "base"
+	#obstacle = PoseStamped()
+	#obstacle.header.frame_id = "base"
 
 	#x, y, and z position
-	obstacle.pose.position.x = 0
-	obstacle.pose.position.y = 0
-	obstacle.pose.position.z = 0
+	#obstacle.pose.position.x = 0
+	#obstacle.pose.position.y = 0
+	#obstacle.pose.position.z = 0
 
 	#Orientation as a quaternion
-	obstacle.pose.orientation.x = 0
-	obstacle.pose.orientation.y = 0
-	obstacle.pose.orientation.z = 0
-	obstacle.pose.orientation.w = 1
+	#obstacle.pose.orientation.x = 0
+	#obstacle.pose.orientation.y = 0
+	#obstacle.pose.orientation.z = 0
+	#obstacle.pose.orientation.w = 1
 	#planner.add_box_obstacle((0.4, 1.2, 0.1), 'box1', obstacle)
 
-	planner.remove_obstacle('box1')
-	planner.remove_obstacle('table')
+	#planner.remove_obstacle('box1')
+	#planner.remove_obstacle('table')
 
 	# #Create a path constraint for the arm
 	# #UNCOMMENT FOR THE ORIENTATION CONSTRAINTS PART
@@ -74,7 +74,7 @@ def main():
 		while not rospy.is_shutdown():
 			try:
 				goal = PoseStamped()
-				goal.header.frame_id = "base"
+				goal.header.frame_id = "base1"
 
 				#x, y, and z position
 				goal.pose.position.x = x
@@ -93,22 +93,21 @@ def main():
 
 				# Might have to edit this for part 5
 				# Default MoveIt
-				#if not planner.execute_plan(plan):
+				if not planner.execute_plan(plan):
+					raise Exception("Execution failed")				
+				#if not controller.execute_plan(plan):
 				#	raise Exception("Execution failed")
-				
-				if not controller.execute_plan(plan):
-					raise Exception("Execution failed")
 			except Exception as e:
 				print e
 				traceback.print_exc()
 			else:
 				break
-
 	while not rospy.is_shutdown():
 		# Set your goal positions here
-		move_to_goal(0.47, -0.85, 0.07)
-		move_to_goal(0.6, -0.3, 0.0)
-		move_to_goal(0.6, -0.1, 0.1)
+		move_to_goal(0, 10, 10, or_x=0.0, or_y=0.0, or_z=0.0, or_w=1.0)
+		#move_to_goal(0.47, -0.85, 0.07)
+		#move_to_goal(0.6, -0.3, 0.0)
+		#move_to_goal(0.6, -0.1, 0.1)
 
 		
 

@@ -1,1 +1,0 @@
-rosrun moveit_kinematics create_ikfast_moveit_plugin.py arm_bot arm arm_bot_ikfast_arm_plugin /home/himty/ros_workspaces/eecs106a-final-project/src/arm_bot_ikfast_arm_plugin/src/arm_bot_arm_ikfast_solver.cpp
