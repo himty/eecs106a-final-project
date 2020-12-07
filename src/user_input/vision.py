@@ -130,7 +130,7 @@ class CVSpheres:
         self.pixelToRealRatio = self.knownDistance / self.knownWidth
         return True # Succeeded
 
-    def findCircles(self, img, showImgs=False, live=False):
+    def findCircles(self, img, largestOnly=False, showImgs=False, live=False):
         # ret, frame = self.cap.read()
         hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         
@@ -165,6 +165,10 @@ class CVSpheres:
             myCircles = myCircles if myCircles is None else myCircles[0]
             if myCircles is None:
                 print(f"No circles found for command {name}")
+
+            if largestOnly and myCircles is not None:
+                # Select the circle with the largest radius
+                myCircles = [max(myCircles, key=lambda x: x[2])]
             
             if showImgs:
                 myCircles2 = [] if myCircles is None else np.round(myCircles).astype('int')
@@ -186,17 +190,6 @@ class CVSpheres:
             ]))
 
         return circles
-
-    def largestCircles(self, circles):
-        largest = dict()
-        for cmdName in circles:
-            # Select the circle with the largest radius
-            arr = circles[cmdName]
-            if arr is None:
-                largest[cmdName] = None
-            else:
-                largest[cmdName] = [max(circles[cmdName], key=lambda x: x[2])]
-        return largest
 
     # TODO: Note that this is untested! Will test soon, but wanted to push this for now.
     def findSpheres(self, circles):
@@ -282,9 +275,8 @@ if __name__ == '__main__':
 
     while True:
         img = cvs.takePhoto(ui=False)
-        circles = cvs.findCircles(img, showImgs=True, live=True)
-        largestCircles = cvs.largestCircles(circles)
-        spheres = cvs.findSpheres(largestCircles)
+        circles = cvs.findCircles(img, largestOnly=True, showImgs=True, live=True)
+        spheres = cvs.findSpheres(circles)
         for sphere in spheres:
             print(sphere.toString())
         print()
