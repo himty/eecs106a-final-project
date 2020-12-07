@@ -11,6 +11,7 @@
 import cv2
 import numpy as np
 import time
+import json
 
 from imgUtils import readImgsFromFolder
 
@@ -49,6 +50,26 @@ class CVSpheres:
         self.commandColors = dict()
         for cmd in commandColors:
             self.commandColors[cmd.name] = cmd
+
+    @staticmethod
+    def fromConfigFile(path):
+        cvs = None
+        with open(path) as json_file:
+            data = json.load(json_file)
+            hardwareCameraId = data['hardwareCameraId']
+            knownWidth = data['knownWidth']
+            knownDistance = data['knownDistance']
+            commandColors = []
+            for c in data['commandColors']:
+                cmd = CommandColor(c['name'], c['minColor'], c['maxColor'])
+                commandColors.append(cmd)
+            chessboardImgsPath = data['chessboardImgsPath']
+            sphereCalibrationImgPath = data['sphereCalibrationImgPath']
+            sphereCalibrationCmdName = data['sphereCalibrationCmdName']
+            cvs = CVSpheres(hardwareCameraId, knownWidth, knownDistance, *commandColors)
+            cvs.calibrateCameraMatrix(chessboardImgsPath)
+            cvs.calibrate(sphereCalibrationCmdName, cv2.imread(sphereCalibrationImgPath, 1))
+        return cvs
 
     def takePhoto(self, ui=True):
         if not ui:
@@ -223,13 +244,13 @@ class CVSpheres:
         # Go back from tool frame to spatial frame
         return np.matmul(g_st, pEndEffector)
 
-    def step(self, g_st):
+    def step(self):
         img = self.takePhoto(ui=False)
         circles = self.findCircles(img, largestOnly=True, showImgs=True, live=True)
         spheres = self.findSpheres(circles)
         transformedSpheres = []
         for s in spheres:
-            X = self.toSpatialCoords(g_st, s.x, s.y, s.z)
+            X = self.toEndEffectorCoords(s.x, s.y, s.z)
             transformedSpheres.append(Sphere(s.cmdName, X[0], X[1], X[2], s.r, s.u, s.v))
         return transformedSpheres
 
