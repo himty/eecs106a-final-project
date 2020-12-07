@@ -43,7 +43,7 @@ void servo_cb( const robot_comm_msgs::AngleArr& cmd_msg){
   digitalWrite(13, HIGH-digitalRead(13));  //toggle led 
 
   str_msg.data = status;
-  chatter.publish(&str_msg); 
+  arm_status.publish(&str_msg); 
 }
 
 
