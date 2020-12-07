@@ -244,9 +244,9 @@ class CVSpheres:
         # Go back from tool frame to spatial frame
         return np.matmul(g_st, pEndEffector)
 
-    def step(self):
+    def step(self, display=True):
         img = self.takePhoto(ui=False)
-        circles = self.findCircles(img, largestOnly=True, showImgs=True, live=True)
+        circles = self.findCircles(img, largestOnly=True, showImgs=display, live=display)
         spheres = self.findSpheres(circles)
         transformedSpheres = []
         for s in spheres:

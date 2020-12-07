@@ -2,6 +2,7 @@ import rospy
 from vision.msgs import CommandSphere, StampedCommandSpheres
 import sys
 from vision import CVSpheres
+import cv2
 
 def runVision(filename):
 	# Load data and calibrate
@@ -14,6 +15,8 @@ def runVision(filename):
 		cmdSpheres = [CommandSphere(s.cmdName, s.x, s.y, s.z) for s in spheres]
 		msg = StampedCommandSpheres(cmdSpheres, rospy.get_time())
 		pub.publish(msg)
+		if cv2.waitKey(1) & 0xFF == ord('q'):
+			break
 
 if __name__ == '__main__':
 	if len(sys.argv) <= 1:
