@@ -11,5 +11,5 @@
       <!--<remap from="joint_states" to="different_joint_states" />-->
   </node>
 
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <!--<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />-->
 </launch>

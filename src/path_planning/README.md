@@ -1,8 +1,10 @@
 # Path Planning
 
-## Moveit! IKFast
+# Moveit! IKFast version
 
-## Requirements
+## Installation to change the ikfast solver (NOT necessary for running the output of ikfast)
+
+You probably DON'T have to install this stuff
 
 ```
 sudo apt-get install liburdfdom-tools
@@ -38,6 +40,7 @@ make -j$(nproc)
 sudo make install
 ```
 
+Maybe for debugging
 ```
 sudo apt-get install ros-kinetic-joint-state-publisher
 sudo apt-get install ros-kinetic-joint-state-publisher-gui
@@ -57,7 +60,7 @@ sudo apt-get install ros-kinetic-joint-state-publisher-gui
 
 - `openrave0.9.py --database inversekinematics --robot=arm_bot_wrapper.xml --iktype=translationzaxisangle4d --iktests=1000`- Create an IKFast solution. The XML wrapper is a workaround from https://answers.ros.org/question/263925/generating-an-ikfast-solution-for-4-dof-arm/ and the type of solution translationzaxisangle4d, which is picked from here http://openrave.org/docs/latest_stable/openravepy/ikfast/#ik-types . The file appears in \~/.openrave. I put this output into path_planning/urdf
 
-- `rosrun moveit_kinematics create_ikfast_moveit_plugin.py arm_bot arm arm_bot_arm_kinematics `pwd`/kinematics.c7db6c67e555d156ee590ef3d3726851/ikfast0x10000049.TranslationZAxisAngle4D.0_1_2_3.cpp` - where the kinematics.c7db.. stuff is the output of the openrave command that was originally created in \~/.openrave. TO create the ikfast moveit plugin package for use by the semantic robot description (set up with setup_assistant above)
+- `rosrun moveit_kinematics create_ikfast_moveit_plugin.py arm_bot arm arm_bot_arm_kinematics `pwd`/kinematics.c7db6c67e555d156ee590ef3d3726851/ikfast0x10000049.TranslationZAxisAngle4D.0_1_2_3.cpp` - where the kinematics.c7db.. stuff is the output of the openrave command that was originally created in \~/.openrave. To create the ikfast moveit plugin package arm_bot_arm_kinematics for use by the semantic robot description (set up with setup_assistant above)
 
 - `roslaunch arm_bot_moveit_config demo.launch`- Visualize the ikfast planner in RViz
 
@@ -65,23 +68,29 @@ sudo apt-get install ros-kinetic-joint-state-publisher-gui
 
 - Follow https://answers.ros.org/question/342725/moveit-and-4-dof-arm/?answer=343951#post-id-343951 and implement the IKP_TranslationXAxisAngle4D, IKP_TranslationYAxisAngle4D, and IKP_TranslationZAxisAngle4D cases in arm_bot_arm_kinematics/src/arm_bot_arm_ikfast_moveit_plugin.cpp. Weird how it's not implemented when ikfast was run specifically for a 4DOF robot
 
-### Running the system
+- arm_bot_arm_kinematics from the create_ikfast_moveit_plugin.py run might be named incorrectly. Make sure the package name in CMakeLists.tst, package.xml, and the folder match with the Kinematic Solver under Planning Groups in the setup_assistant
 
-- `roslaunch path_planning arm_bot_publish.launch`
+## Running the system
 
-To visualize:
-- `roslaunch path_planning arm_bot_rviz.launch`
+To get next target point given current end effector position and command sphere location:
+- Use `NextPointPlanner` in moveit_planner/next_pt_planner.py
+- No roslaunches necessary
 
-To send test pose targets:
-- `rosrun path_planning path_test.py`
+To get forward/inverse kinematics
+- (One terminal) `roscore`
+- (Another terminal) `roslaunch path_planning arm_bot_publish_moveit.launch`
+- (Yet another terminal) Publish JointState messages to the `/joint_states` topic (for example, run `rosrun path_planning moveit_ik_test_pub.py`)
+- Initialize `KinematicsCalculator('arm')` from `moveit_planner/kinematics_calculator_moveit.py`, where arm is the group name of the arm_bot's arm joints
+- Call inverse_kinematics() or forward_kinematics() :D (may take about 0.2-0.3 seconds to return)
 
-## tinyik
+# tinyik version
+
+This is the first iteration. Being a naive solver, each call for inverse kinematics took about 2 seconds, which is too long. This code is still in the `tinyik_files` folder for happy memories.
 
 ### Requirements
 I'm pretty sure it's only `pip install tinyik open3d==0.10.0.0` (higher open3d versions give me a segmentation fault; open3d also doesn't support python >= 3.9)
 
 Alternatively, cd to this folder and do `pip install -r requirements.txt` for extra fancy points
-
 
 
 ### Visualization

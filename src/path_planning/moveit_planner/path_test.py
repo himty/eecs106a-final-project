@@ -94,7 +94,6 @@ def main():
 				# Might have to edit this for part 5
 				# Default MoveIt
 				if not planner.execute_plan(plan):
-					print('ripperdoodles')
 					raise Exception("Execution failed")				
 				#if not controller.execute_plan(plan):
 				#	raise Exception("Execution failed")
