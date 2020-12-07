@@ -2,10 +2,10 @@
 (dp1
 S'usinglapack'
 p2
-I01
+I00
 sS'generationtime'
 p3
-F2.2920000553131104
+F10.169387102127075
 sN(lp4
 cnumpy.core.multiarray
 scalar
@@ -32,10 +32,6 @@ ag5
 (g7
 S'\x02\x00\x00\x00'
 tRp10
-ag5
-(g7
-S'\x03\x00\x00\x00'
-tRp11
-a(lp12
-(lp13
+a(lp11
+(lp12
 t.

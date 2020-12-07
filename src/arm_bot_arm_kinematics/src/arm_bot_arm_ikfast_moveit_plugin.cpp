@@ -510,7 +510,6 @@ int IKFastKinematicsPlugin::solve(KDL::Frame& pose_frame, const std::vector<doub
   KDL::Rotation mult;
   KDL::Vector direction;
 
-  double roll, pitch, yaw;
   switch (GetIkType())
   {
     case IKP_Transform6D:
@@ -545,19 +544,13 @@ int IKFastKinematicsPlugin::solve(KDL::Frame& pose_frame, const std::vector<doub
       return solutions.GetNumSolutions();
 
     case IKP_TranslationXAxisAngle4D:
-      pose_frame.M.GetRPY(roll,pitch,yaw);
-      ComputeIk(trans, &roll, vfree.size() > 0 ? &vfree[0] : NULL, solutions);
-      return IKP_TranslationXAxisAngle4D;
-
     case IKP_TranslationYAxisAngle4D:
-      pose_frame.M.GetRPY(roll,pitch,yaw);
-      ComputeIk(trans, &pitch, vfree.size() > 0 ? &vfree[0] : NULL, solutions);
-      return IKP_TranslationYAxisAngle4D;
-
     case IKP_TranslationZAxisAngle4D:
-      pose_frame.M.GetRPY(roll,pitch,yaw);
-      ComputeIk(trans, &yaw, vfree.size() > 0 ? &vfree[0] : NULL, solutions);
-      return IKP_TranslationZAxisAngle4D;
+      // For *TranslationXAxisAngle4D*, *TranslationYAxisAngle4D*, *TranslationZAxisAngle4D* - end effector origin
+      // reaches desired 3D translation, manipulator direction makes a specific angle with x/y/z-axis (defined in the
+      // manipulator base link’s coordinate system)
+      ROS_ERROR_NAMED(name_, "IK for this IkParameterizationType not implemented yet.");
+      return 0;
 
     case IKP_TranslationLocalGlobal6D:
       // For **TranslationLocalGlobal6D**, the diagonal elements ([0],[4],[8]) are the local translation inside the end

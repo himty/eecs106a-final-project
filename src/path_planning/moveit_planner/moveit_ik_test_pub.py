@@ -37,8 +37,8 @@ def main():
   	  joint_state = JointState()
 	  joint_state.header = Header()
 	  joint_state.header.stamp = rospy.Time.now()
-	  joint_state.name = ['base_rotate', 'joint1', 'joint2', 'joint3']
-	  joint_state.position = [3.14, 0, 0, 0]
+	  joint_state.name = ['base_rotate', 'joint1', 'joint2']
+	  joint_state.position = [3.14, 0, 0]
 	  pub.publish(joint_state)
 	  rate.sleep()
 
