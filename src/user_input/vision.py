@@ -187,6 +187,17 @@ class CVSpheres:
 
         return circles
 
+    def largestCircles(self, circles):
+        largest = dict()
+        for cmdName in circles:
+            # Select the circle with the largest radius
+            arr = circles[cmdName]
+            if arr is None:
+                largest[cmdName] = None
+            else:
+                largest[cmdName] = [max(circles[cmdName], key=lambda x: x[2])]
+        return largest
+
     # TODO: Note that this is untested! Will test soon, but wanted to push this for now.
     def findSpheres(self, circles):
         if circles is None:
@@ -272,8 +283,8 @@ if __name__ == '__main__':
     while True:
         img = cvs.takePhoto(ui=False)
         circles = cvs.findCircles(img, showImgs=True, live=True)
-        # TODO: Take largest circle
-        spheres = cvs.findSpheres(circles)
+        largestCircles = cvs.largestCircles(circles)
+        spheres = cvs.findSpheres(largestCircles)
         for sphere in spheres:
             print(sphere.toString())
         print()
