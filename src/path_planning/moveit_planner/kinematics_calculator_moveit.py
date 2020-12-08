@@ -17,34 +17,30 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 import tf
 
+from lab3_skeleton import *
+
 class KinematicsCalculator():
   """
   An instance of this has callable functions that compute
   inverse kinematics and forward kinematics.
 
   Requirements for forward kinematics:
-    - Have a node continuously publishing JointState messages to
-        'joint_states'
-        - For example, path_planning/moveit_planner.moveit_ik_test_pub.py does this
+    - None. Just call the function
 
   Requirements for inverse kinematics:
     - Run "roscore"
     - Have "roslaunch path_planning arm_bot_publish_moveit.launch" running
   """
-
-  STATUS_WAIT_PUB = 0
-  STATUS_WAIT_CALC = 1
-  STATUS_DONE = 2
-
-  MAX_FK_TRIES = 20
-
   def __init__(self, group_name):
-    self.fk_status = KinematicsCalculator.STATUS_DONE
-    self.fk_result = (None, None)
-    self.group = moveit_commander.MoveGroupCommander(group_name)
+    # Make sure these are the same as the URDF
+    # This copy is for faster fk
+    self.base_height = 7.5
+    self.l1 = 10
+    self.l2 = 12
 
-    self.joint_state_sub = rospy.Subscriber("joint_states", JointState, self.get_forward_kinematics_cbk())
-    
+    # Initialize robot params
+    self.xis, self.g0 = self.get_joint_twists()
+
     self.planner = PathPlanner(group_name)
     rospy.sleep(0.5)
 
@@ -82,61 +78,65 @@ class KinematicsCalculator():
 
     return last_pt
 
-  def get_forward_kinematics_cbk(self):
-    # to get self in scope
-    # Only for use in this class. Gets the pose then sets a variable
-    def forward_kinematics_cbk(msg):
-      # Only do this if we were told to do forward kinematics
-      if self.fk_status == KinematicsCalculator.STATUS_WAIT_PUB:
-        self.fk_status = KinematicsCalculator.STATUS_WAIT_CALC
+  def get_joint_twists(self):
+    q = np.ndarray((3,3))
+    w = np.ndarray((3,3))
 
-        pose = self.group.get_current_pose().pose
-        pos = (pose.position.x, pose.position.y, pose.position.z)
-        quaternion = (
-            pose.orientation.x,
-            pose.orientation.y,
-            pose.orientation.z,
-            pose.orientation.w)
-        euler = tf.transformations.euler_from_quaternion(quaternion)
-        self.fk_result = (pos, euler)
-        self.fk_status = KinematicsCalculator.STATUS_DONE
+    q[0:3,0] = [0, 0, 0]
+    q[0:3,1] = [0, 0, self.base_height]
+    q[0:3,2] = [0, self.l1, self.base_height]
 
-    return forward_kinematics_cbk
+    w[0:3,0] = [0, 0, 1]
+    w[0:3,1] = [1, 0, 0]
+    w[0:3,2] = [1, 0, 0]
+
+    R = np.eye(3) # Initially the same as the base frame
+    q_init = np.array([0, self.l1+self.l2, self.base_height])
+    g0 = get_3dto4d(R, q_init)
+
+    # write the twist xi_i for each joint in the manipulator
+    xis = np.ndarray((6, 3))
+    for i in range(3):
+      xis[:,i] = get_xi(w[:,i], q[:,i])
+
+    return xis, g0
 
   def forward_kinematics(self, joint_angles):
     """
     joint_angles- [theta1, theta2, theta3, theta4] in radians
                 for base_rotate, joint1, joint2, and joint3
+    returns (position, angle)
+      where position is [x, y, z] in spatial coordinates. in cm
+            and angle is in euler angles [roll, pitch, yaw]
     """
-    self.fk_status = 0
-    self.fk_result = (None, None)
+    g = prod_exp(self.xis, np.array(joint_angles))
+    g_ee = g.dot(self.g0) # pose of end effector
 
-    tries = 0
-    while self.fk_status != KinematicsCalculator.STATUS_DONE \
-       and not rospy.is_shutdown() and tries < KinematicsCalculator.MAX_FK_TRIES:
-       tries += 1
-       rospy.sleep(0.05)
+    quaternion = tf.transformations.quaternion_from_matrix(g_ee)
+    euler = tf.transformations.euler_from_quaternion(quaternion)
 
-    if tries == KinematicsCalculator.MAX_FK_TRIES:
-      rospy.logwarn("Forward kinematics calc timed out. Are you publishing to /joint_states?")
-
-    return self.fk_result
+    pos = g_ee[:3,3]
+    return pos, euler
 
 def main():
   """
-  Main Script
+  Maintf.transformations.quaternion_from_matrix(g_ee)
+ Script
   """
   #group = moveit_commander.MoveGroupCommander('arm')
 
 
   kinematics = KinematicsCalculator("arm")
-  pos, rotation = kinematics.forward_kinematics([1, 1, 1, 1])
+  import time
+  
+  starttime = time.time()
+  pos, rotation = kinematics.forward_kinematics([1, 1, 1])
   print('fk result', pos, rotation)
-  if pos is not None and rotation is not None:
-    print('ik result', kinematics.inverse_kinematics(pos, rotation))
-  else:
-    print('Cannot run ik because fk failed!')
-  rospy.spin()
+  print('fk time', time.time() - starttime)
+
+  starttime = time.time()
+  print('ik result', kinematics.inverse_kinematics(pos, rotation))
+  print('ik time', time.time() - starttime)
 
 if __name__ == '__main__':
   rospy.init_node('moveit_node')

@@ -58,9 +58,9 @@ sudo apt-get install ros-kinetic-joint-state-publisher-gui
 
 - `rosrun moveit_commander moveit_commander_cmdline.py`- Start the MoveIt! Commander commandline tool for nice data http://docs.ros.org/en/kinetic/api/moveit_tutorials/html/doc/moveit_commander_scripting/moveit_commander_scripting_tutorial.html
 
-- `openrave0.9.py --database inversekinematics --robot=arm_bot_wrapper.xml --iktype=translationzaxisangle4d --iktests=1000`- Create an IKFast solution. The XML wrapper is a workaround from https://answers.ros.org/question/263925/generating-an-ikfast-solution-for-4-dof-arm/ and the type of solution translationzaxisangle4d, which is picked from here http://openrave.org/docs/latest_stable/openravepy/ikfast/#ik-types . The file appears in \~/.openrave. I put this output into path_planning/urdf
+- `openrave0.9.py --database inversekinematics --robot=arm_bot_wrapper.xml --iktype=translation3d --iktests=1000`- Create an IKFast solution. The XML wrapper is a workaround from https://answers.ros.org/question/263925/generating-an-ikfast-solution-for-4-dof-arm/ . Translation3D was picked from here http://openrave.org/docs/latest_stable/openravepy/ikfast/#ik-types . The file appears in \~/.openrave. I put this output into path_planning/urdf
 
-- `rosrun moveit_kinematics create_ikfast_moveit_plugin.py arm_bot arm arm_bot_arm_kinematics `pwd`/kinematics.c7db6c67e555d156ee590ef3d3726851/ikfast0x10000049.TranslationZAxisAngle4D.0_1_2_3.cpp` - where the kinematics.c7db.. stuff is the output of the openrave command that was originally created in \~/.openrave. To create the ikfast moveit plugin package arm_bot_arm_kinematics for use by the semantic robot description (set up with setup_assistant above)
+- `rosrun moveit_kinematics create_ikfast_moveit_plugin.py arm_bot arm arm_bot_arm_kinematics `pwd`/kinematics.c7db6c67e555d156ee590ef3d3726851/ikfast0x10000049.Translation3D.0_1_2.cpp` - where the kinematics.c7db.. stuff is the output of the openrave command that was originally created in \~/.openrave. To create the ikfast moveit plugin package arm_bot_arm_kinematics for use by the semantic robot description (set up with setup_assistant above). Run catkin_make again to use this!
 
 - `roslaunch arm_bot_moveit_config demo.launch`- Visualize the ikfast planner in RViz
 

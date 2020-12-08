@@ -25,7 +25,6 @@
     <end_effector name="end_effector" parent_link="end_effector_link" group="arm" />
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <disable_collisions link1="base1" link2="base2" reason="Adjacent" />
-    <disable_collisions link1="base1" link2="link1" reason="Never" />
     <disable_collisions link1="base2" link2="link1" reason="Adjacent" />
     <disable_collisions link1="link1" link2="link2" reason="Adjacent" />
 </robot>

@@ -1,11 +1,11 @@
 moveit_setup_assistant_config:
   URDF:
     package: path_planning
-    relative_path: urdf/arm_bot.urdf
+    relative_path: urdf/arm_bot.xacro
     xacro_args: "--inorder "
   SRDF:
     relative_path: config/arm_bot.srdf
   CONFIG:
     author_name: EECS106A Students
     author_email: jwang078@berkeley.edu
-    generated_timestamp: 1607380477
+    generated_timestamp: 1607380760
