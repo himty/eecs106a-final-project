@@ -32,9 +32,11 @@ curr_sphere_pos = np.array([0, -3, 0, 1])
 curr_sphere_cmd = "near"
 
 def updateJoints(data):
+    global joint_states
     joint_states = data.position
 
 def updateSpheres(data):
+    global curr_sphere_pos, curr_sphere_cmd
     #can support multiple spheres 
     curr_sphere = data.spheres[0]
     curr_sphere_pos[0] = curr_sphere.x
