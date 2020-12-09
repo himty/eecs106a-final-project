@@ -5,7 +5,7 @@ ROS network for path planning and output
 """
 
 import rospy
-from pathplanning.moveit_planner.kinematics_calculator_moveit import KinematicsCalculator
+from path_planning.moveit_planner.kinematics_calculator_moveit import KinematicsCalculator
 
 #import user_input.vision as cv
 
@@ -21,6 +21,7 @@ def updateJoints(data):
     joint_states = data.position
 
 def updateSpheres(data):
+    #update with correct message type
     target_coords_ef = data.position
 
 def cmd_angle():
@@ -28,7 +29,8 @@ def cmd_angle():
     #callibration sequence launched from CV node
 
     rospy.Subscriber("joint_states", String, updateJoints)
-    #fake, update later
+
+    #placeholder topic 'spheres', update later
     rospy.Subscriber("spheres", String, updateSpheres)
 
     pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
