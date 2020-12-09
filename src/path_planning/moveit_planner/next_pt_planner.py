@@ -16,6 +16,8 @@ class NextPointPlanner():
         # Can control the tradeoff between centering the ball in view vs getting closer/farther from it
         self.max_dist_per_timestep = max_dist_per_timestep
         self.base_height = 7.5
+        self.l1 = 10
+        self.l2 = 12
 
     def get_far_point(self, arm_pos, obj_pos):
         """
@@ -81,14 +83,20 @@ class NextPointPlanner():
                 # c_ is only used in radicand, which is given
 
                 # quadratic formula
-                b1 = (-b_ + np.sqrt(radicand)) / (2*a_)
-                b2 = (-b_ - np.sqrt(radicand)) / (2*a_)
+                b1 = min(self.l1+self.l2, max(0, (-b_ + np.sqrt(radicand)) / (2*a_)))
+                b2 = min(self.l1+self.l2, max(0, (-b_ - np.sqrt(radicand)) / (2*a_)))
 
                 # b1 and b2 are magnitudes. They lie along the line from offset origin to the offset obj
                 if get_closer:
-                    target_pos = b1 * (rel_obj_pos / np.linalg.norm(rel_obj_pos))
+                    if np.linalg.norm(rel_obj_pos) > np.linalg.norm(rel_arm_pos):
+                        target_pos = b1 * (rel_obj_pos / np.linalg.norm(rel_obj_pos))
+                    else:
+                        target_pos = b2 * (rel_obj_pos / np.linalg.norm(rel_obj_pos))
                 else:
-                    target_pos = b2 * (rel_obj_pos / np.linalg.norm(rel_obj_pos))
+                    if np.linalg.norm(rel_obj_pos) > np.linalg.norm(rel_arm_pos):
+                        target_pos = b2 * (rel_obj_pos / np.linalg.norm(rel_obj_pos))
+                    else:
+                        target_pos = b1 * (rel_obj_pos / np.linalg.norm(rel_obj_pos))
                 return target_pos
 
             # Find a target position

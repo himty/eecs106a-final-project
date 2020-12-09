@@ -1,7 +1,9 @@
 import tinyik
 import numpy as np
 import open3d as o3d
-from path_planner import AlgPathPlanner
+import sys
+sys.path.insert(0, "/Users/himty/Desktop/Serious_Stuff/UC_Berkeley/3_Junior/EECS 106A/eecs106a-final-project/src/path_planning/moveit_planner")
+from next_pt_planner import NextPointPlanner
 
 # Open3d likes to be unblocked :/
 # This script puts keyboard input on another thread
@@ -42,7 +44,23 @@ class VisPlanner3D():
         self.near_color = {'name': 'green', 'code': [.1, .8, .1]}
         self.far_color = {'name': 'blue', 'code': [.1, .1, .8]}
 
-        self.planner = AlgPathPlanner(2, [])
+        self.planner = NextPointPlanner(2, [])
+
+        self.base_height = 7.5
+        self.l1 = 10
+        self.l2 = 12
+
+        # 'z' and 'x' are rotation axes.
+        # Each array is the length of the joint between rotation axes
+        # I don't think this library supports prismatic joints? 
+        self.arm = tinyik.Actuator([
+                'z',
+                [0, 0, self.base_height],
+                'x',
+                [0, self.l1, 0],
+                'x',
+                [0, self.l2, 0],
+            ])
 
         # Draw some initial things
         axes = o3d.geometry.TriangleMesh.create_coordinate_frame(
@@ -66,7 +84,7 @@ class VisPlanner3D():
             else:
                 ee_pos = [float(coord) for coord in inp.split(' ')]
 
-            self.planner.arm.ee = ee_pos
+            self.arm.ee = ee_pos
 
             self.vis.clear_geometries()
             axes = o3d.geometry.TriangleMesh.create_coordinate_frame(
@@ -84,18 +102,19 @@ class VisPlanner3D():
             obj = tinyik.visualizer.create_sphere(self.obj_pos, r=self.sphere_r, color=self.obj_color['code'])
             self.vis.add_geometry(obj)
 
-            near_pos = self.planner.get_near_point(self.planner.arm.ee, self.obj_pos)
-            self.planner.arm.ee = near_pos
+            near_pos = self.planner.get_near_point(self.arm.ee, self.obj_pos)
+            self.arm.ee = near_pos
             self.render_arm()
             obj = tinyik.visualizer.create_sphere(near_pos, r=self.sphere_r, color=self.near_color['code'])
             self.vis.add_geometry(obj)
 
-            far_pos = self.planner.get_far_point(self.planner.arm.ee, self.obj_pos)
-            self.planner.arm.ee = far_pos
+            far_pos = self.planner.get_far_point(self.arm.ee, self.obj_pos)
+            self.arm.ee = far_pos
             self.render_arm()
             obj = tinyik.visualizer.create_sphere(far_pos, r=self.sphere_r, color=self.far_color['code'])
             self.vis.add_geometry(obj)
 
+            print('near pos', near_pos, 'far pos', far_pos)
             print('Displayed.')
             print()
 
@@ -111,7 +130,7 @@ class VisPlanner3D():
             for geo in geos:
                 self.vis.add_geometry(geo)
         else:
-            ee_pos = self.planner.arm.ee
+            ee_pos = self.arm.ee
             ee = tinyik.visualizer.create_sphere(ee_pos, r=self.sphere_r, color=self.ee_color['code'])
             self.vis.add_geometry(ee)
 
@@ -122,7 +141,7 @@ class VisPlanner3D():
         """
         
         # Setting some values so the code runs in this class
-        actuator = self.planner.arm
+        actuator = self.arm
         target = None
 
         root = None
@@ -164,7 +183,7 @@ class VisPlanner3D():
 
     #     ee_pos- (x, y, z) target position of the end effector
     #     """
-    #     self.planner.arm.ee = ee_pos
+    #     self.arm.ee = ee_pos
 
     #     # Assume the vis joints correspond to the first few geometries in self.geos
     #     mat = np.eye(4)
