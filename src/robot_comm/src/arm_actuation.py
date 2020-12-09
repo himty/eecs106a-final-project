@@ -40,7 +40,9 @@ def updateSpheres(data):
     curr_sphere_pos[0] = curr_sphere.x
     curr_sphere_pos[1] = curr_sphere.y
     curr_sphere_pos[2] = curr_sphere.z
-    curr_sphere_cmd = curr_sphere.cmd_name
+    #currently color based: curr_sphere_cmd = curr_sphere.cmd_name
+    #hardcode:
+    curr_sphere_cmd = "near"
 
 def publish_joint_angles(pub, joint_angles):
     joint_state = JointState()
