@@ -131,9 +131,19 @@ class CVSpheres:
         try:
             self.invK = np.linalg.inv(mtx)
             self.K = mtx
+            self.dist = dist
             return True
         except np.linalg.LinAlgError:
             return False
+
+    # Source: https://docs.opencv.org/3.4/dc/dbb/tutorial_py_calibration.html
+    def undistort(self, img):
+        h, w = img.shape[:2]
+        newcameramtx, roi = cv2.getOptimalNewCameraMatrix(self.K, self.dist, (w,h), 1 (w,h))
+        dst = cv2.undistort(img, self.K, self.dist, None, newcameramtx)
+        x, y, w, h = roi
+        dst = dst[y:y+1, x:x+w]
+        return dst
 
     # Calibration should only need to run once, but choose a color with which to do it so we know what to look for.
     # User should be able to trigger when the photo is taken, or perhaps just use a photo already taken in (specify image name).
@@ -247,6 +257,7 @@ class CVSpheres:
 
     def step(self, display=True):
         img = self.takePhoto(ui=False)
+        img = self.undistort(img) # FIXME: Comment out this line if undistortion gets wonky!
         circles = self.findCircles(img, largestOnly=True, showImgs=display, live=display)
         spheres = self.findSpheres(circles)
         transformedSpheres = []
