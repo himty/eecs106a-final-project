@@ -55,10 +55,8 @@ def cmd_angle():
             print(angles)
 
             pub_string = AngleArr(angles, rospy.get_time())
-
-        	pub.publish(pub_string)
-
-        	r.sleep()
+            pub.publish(pub_string)
+            r.sleep()
             
         except rospy.ServiceException, e:
             print "Service call failed: %s"%e
@@ -66,11 +64,11 @@ def cmd_angle():
 #Python's syntax for a main() method
 if __name__ == '__main__':
 
-	rospy.init_node('cmd_angle', anonymous=True)
+    rospy.init_node('cmd_angle', anonymous=True)
     rospy.init_node('joint_listener', anonymous=True)
     rospy.init_node('cv_listener', anonymous=True)
 
-	try:
-	  cmd_angle()
+    try:
+        cmd_angle()
 
-	except rospy.ROSInterruptException: pass
+    except rospy.ROSInterruptException: pass
