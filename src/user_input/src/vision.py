@@ -38,9 +38,10 @@ class Sphere:
         return self.cmdName + " of radius " + str(self.r) + " at spatial (" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ") and at camera (" + str(self.u) + ", " + str(self.v) + ")"
 
 class CVSpheres:
-    def __init__(self, hardwareCameraId, knownWidth, knownDistance, *commandColors):
+    def __init__(self, hardwareCameraId, knownWidth, knownDistance, *commandColors, isIncremental=True):
         self.knownWidth = knownWidth
         self.knownDistance = knownDistance
+        self.isIncremental = isIncremental
 
         self.cap = cv2.VideoCapture(hardwareCameraId)
         self.focalLength = -1.0 # Should be initialized by self.calibrate
@@ -66,6 +67,8 @@ class CVSpheres:
             chessboardImgsPath = data['chessboardImgsPath']
             sphereCalibrationImgPath = data['sphereCalibrationImgPath']
             sphereCalibrationCmdName = data['sphereCalibrationCmdName']
+            isIncremental = data['isIncremental']
+            isIncremental = True if isIncremental is None else isIncremental
             cvs = CVSpheres(hardwareCameraId, knownWidth, knownDistance, *commandColors)
             cvs.calibrateCameraMatrix(chessboardImgsPath)
             cvs.calibrate(sphereCalibrationCmdName, cv2.imread(sphereCalibrationImgPath, 1))
@@ -240,8 +243,25 @@ class CVSpheres:
                 # Get depth
                 depth = self.__zDistanceToCamera(2.0 * r)
                 # Convert u, v to camera coords and apply intrinsic camera matrix
-                x = np.array([u - self.imgWidth / 2, v - self.imgHeight / 2, 1])
-                X = depth * np.matmul(self.invK, x) # FIXME: It's possible that invK won't exist at this point.
+                # TODO: Fudge the X, Y (X = 1, X = -1, etc.) coordinates, worst case scenario by choosing left or right.
+                X = None
+                if self.isIncremental:
+                    uCentered = u - self.imgWidth / 2
+                    vCentered = v - self.imgHeight / 2
+
+                    uThreshold = 1/8 * self.imgWidth
+                    vThreshold = 1/8 * self.imgHeight
+
+                    print(uThreshold, uCentered, vThreshold, vCentered)
+                    x = (1.0 if np.abs(uCentered) > uThreshold else 0.0) * np.sign(uCentered)
+                    y = (1.0 if np.abs(vCentered) > vThreshold else 0.0) * -np.sign(vCentered)
+
+                    # x = np.sign(u - self.imgWidth / 2)
+                    # y = -np.sign(v - self.imgHeight / 2)
+                    X = np.array([x, y, depth])
+                else:
+                    x = np.array([u, v, 1])
+                    X = depth * np.matmul(self.invK, x) # FIXME: It's possible that invK won't exist at this point.
                 # Convert r to real width, if that's even necessary
                 R = (2.0 * r) / self.pixelToRealRatio
                 spheres.append(Sphere(cmdName, X[0], X[1], X[2], R, u, v))
@@ -305,7 +325,7 @@ if __name__ == '__main__':
     
     KNOWN_WIDTH = 3.4925 # cm
     KNOWN_DISTANCE = 5.08 # cm
-    cvs = CVSpheres(0, KNOWN_WIDTH, KNOWN_DISTANCE, ccBlue) # Currently only supports all objects being the same size.
+    cvs = CVSpheres(0, KNOWN_WIDTH, KNOWN_DISTANCE, ccBlueShinyDay) # Currently only supports all objects being the same size.
     cvs.calibrateCameraMatrix('/Users/jessiemindel/Downloads/chessboard_calibrate')
     cvs.calibrate('testBlue', cv2.imread('/Users/jessiemindel/Downloads/blue-sphere-calibrate-b2.jpg', 1))
 
