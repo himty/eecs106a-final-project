@@ -15,8 +15,8 @@ print(sys.path)
 
 from robot_comm_msg.msg import AngleArr
 
-from stamped_command_spheres_msg.msg import StampedCommandSpheres
-from command_spheres_msg.msg import CommandSpheres
+#from stamped_command_spheres_msg.msg import StampedCommandSpheres
+#from command_spheres_msg.msg import CommandSpheres
 
 from kinematics_calculator_moveit import KinematicsCalculator
 
@@ -28,7 +28,7 @@ import numpy as np
 
 joint_states = [0, 0, 0]
 
-curr_sphere_pos = np.array([0, -3, 0, 1])
+curr_sphere_pos = np.array([2, 0, 0, 1])
 curr_sphere_cmd = "near"
 
 def updateJoints(data):
@@ -60,7 +60,7 @@ def cmd_angle():
     joint_pub = rospy.Publisher("joint_states", JointState, queue_size=10)
     publish_joint_angles(joint_pub, [0, 0, 0])
 
-    rospy.Subscriber("vision_spheres", StampedCommandSpheres, updateSpheres)
+    #rospy.Subscriber("vision_spheres", StampedCommandSpheres, updateSpheres)
 
     pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
     
