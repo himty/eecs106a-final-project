@@ -83,8 +83,8 @@ class NextPointPlanner():
                 # c_ is only used in radicand, which is given
 
                 # quadratic formula
-                b1 = min(self.l1+self.l2, max(0, (-b_ + np.sqrt(radicand)) / (2*a_)))
-                b2 = min(self.l1+self.l2, max(0, (-b_ - np.sqrt(radicand)) / (2*a_)))
+                b1 = min(self.l1+self.l2, max(-(self.l1+self.l2), (-b_ + np.sqrt(radicand)) / (2*a_)))
+                b2 = min(self.l1+self.l2, max(-(self.l1+self.l2), (-b_ - np.sqrt(radicand)) / (2*a_)))
 
                 # b1 and b2 are magnitudes. They lie along the line from offset origin to the offset obj
                 if get_closer:
