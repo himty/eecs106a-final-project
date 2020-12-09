@@ -17,7 +17,7 @@ def generateThresholds(bgrImg, threshold=0, verbose=False):
 	sMax = max(pixels, key=lambda x: x[1])[1]
 	vMin = min(pixels, key=lambda x: x[2])[2]
 	vMax = max(pixels, key=lambda x: x[2])[2]
-	if verbose: print(f"Min: ({hMin}, {sMin}, {vMin})\nMax: ({hMax}, {sMax}, {vMax})")
+	if verbose: print("Min: (" + str(hMin) + ", " + str(sMin) + ", " + str(vMin) + ")\nMax: (" + str(hMax)+  ", " + str(sMax) + ", " + str(vMax) + ")")
 	return ((hMin, sMin, vMin), (hMax, sMax, vMax))
 
 def generateThresholdsMany(bgrImgs, threshold=0, verbose=False):
@@ -49,7 +49,7 @@ def generateThresholdsMany(bgrImgs, threshold=0, verbose=False):
 		if hsvMax[2] > vMax:
 			vMax = hsvMax[2]
 
-	if verbose: print(f"\nMin: ({hMin}, {sMin}, {vMin})\nMax: ({hMax}, {sMax}, {vMax})")
+	if verbose: print("Min: (" + str(hMin) + ", " + str(sMin) + ", " + str(vMin) + ")\nMax: (" + str(hMax)+  ", " + str(sMax) + ", " + str(vMax) + ")")
 	return ((hMin, sMin, vMin), (hMax, sMax, vMax))
 
 if __name__ == '__main__':
@@ -64,13 +64,13 @@ if __name__ == '__main__':
 	filename = sys.argv[1]
 	imgs, filenames = readImgsFromFolder(filename)
 	if len(imgs) == 1:
-		print(f"Finding color thresholding bounds with minimum value {threshold} for masked file \"{filename}\"...")
+		print("Finding color thresholding bounds with minimum value " + str(threshold) + " for masked file \"" + filename + "\"...")
 		generateThresholds(imgs[0], threshold=threshold, verbose=True)
 	elif len(imgs) > 1:
-		print(f"Finding color thresholding bounds with minimum value {threshold} for the following masked files:")
+		print("Finding color thresholding bounds with minimum value " + str(threshold) + " for the following masked files:")
 		for f in filenames:
 			print(f)
 		print()
 		generateThresholdsMany(imgs, threshold=threshold, verbose=True)
 	else:
-		print(f"Failed to threshold. The inputted path is neither a file nor a directory.")
+		print("Failed to threshold. The inputted path is neither a file nor a directory.")
