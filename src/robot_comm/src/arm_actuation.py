@@ -13,9 +13,9 @@ import numpy as np
 
 from robot_comm_msg.msg import AngleArr
 
-int16[] joint_states = [0, 0, 0]
+joint_states = [0, 0, 0]
 
-int16[] target_coords_ef = [0, 0, 0]
+target_coords_ef = [0, 0, 0]
 
 def updateJoints(data):
     joint_states = data.position
