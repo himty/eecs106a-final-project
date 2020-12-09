@@ -14,6 +14,10 @@ sys.path.insert(0,'/home/jon/ros_workspaces/eecs106a-final-project/src/path_plan
 print(sys.path)
 
 from robot_comm_msg.msg import AngleArr
+
+from stamped_command_spheres_msg.msg import StampedCommandSpheres
+from command_spheres_msg.msg import CommandSpheres
+
 from kinematics_calculator_moveit import KinematicsCalculator
 
 from next_pt_planner import NextPointPlanner
@@ -25,13 +29,18 @@ import numpy as np
 joint_states = [0, 0, 0]
 
 curr_sphere_pos = np.array([0, -3, 0, 1])
+curr_sphere_cmd = "near"
 
 def updateJoints(data):
     joint_states = data.position
 
 def updateSpheres(data):
-    #update with correct message type
-    curr_sphere_pos = data.position
+    #can support multiple spheres 
+    curr_sphere = data.spheres[0]
+    curr_sphere_pos[0] = curr_sphere.x
+    curr_sphere_pos[1] = curr_sphere.y
+    curr_sphere_pos[2] = curr_sphere.z
+    curr_sphere_cmd = curr_sphere.cmd_name
 
 def publish_joint_angles(pub, joint_angles):
     joint_state = JointState()
@@ -47,10 +56,9 @@ def cmd_angle():
 
     rospy.Subscriber("joint_states", JointState, updateJoints)
     joint_pub = rospy.Publisher("joint_states", JointState, queue_size=10)
-
     publish_joint_angles(joint_pub, [0, 0, 0])
-    # placeholder topic 'spheres', update later
-    # rospy.Subscriber("spheres", String, updateSpheres)
+
+    rospy.Subscriber("vision_spheres", StampedCommandSpheres, updateSpheres)
 
     pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
     
@@ -73,7 +81,11 @@ def cmd_angle():
             #convert back to spatial g*coordinates
             sphere_coords_spatial = np.matmul(g, curr_sphere_pos)[:3]
             
-            target_coords_spatial = next_pt_planner.get_near_point(arm_pos, sphere_coords_spatial)
+            if (curr_sphere_cmd == "near"):
+                target_coords_spatial = next_pt_planner.get_near_point(arm_pos, sphere_coords_spatial)
+            else:
+                target_coords_spatial = next_pt_planner.get_far_point(arm_pos, sphere_coords_spatial)
+            
             print("target_coords_spatial", target_coords_spatial)
 
             angles = arm.inverse_kinematics(target_coords_spatial)
@@ -95,8 +107,6 @@ def cmd_angle():
 if __name__ == '__main__':
 
     rospy.init_node('cmd_angle', anonymous=True)
-    #rospy.init_node('joint_listener', anonymous=True)
-    #rospy.init_node('cv_listener', anonymous=True)
 
     try:
         cmd_angle()
