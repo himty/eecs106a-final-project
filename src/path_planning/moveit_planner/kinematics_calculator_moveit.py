@@ -67,12 +67,13 @@ class KinematicsCalculator():
     plan = self.planner.plan_to_pose(goal, orien_const)
 
     trajectory_pts = plan.joint_trajectory.points
-    last_pt = trajectory_pts[len(trajectory_pts)-1].positions
-
-    # Return degrees
-    last_pt = np.array(last_pt) * 180 / np.pi
-
-    return last_pt
+    if len(trajectory_pts) > 0:
+        last_pt = trajectory_pts[len(trajectory_pts)-1].positions
+        last_pt = np.array(last_pt) * 180 / np.pi # Return degrees
+        return last_pt
+    else:
+        rospy.logwarn("No inverse kinematics solution found by the calculator!")
+        return None
 
   def get_joint_twists(self):
     q = np.ndarray((3,3))
