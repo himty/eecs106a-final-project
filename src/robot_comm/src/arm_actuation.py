@@ -9,14 +9,14 @@ import sys
 from std_msgs.msg import Header
 from sensor_msgs.msg import JointState
 sys.path.insert(0,'/home/jon/ros_workspaces/eecs106a-final-project/src/path_planning/moveit_planner')
-sys.path.insert(0,'/home/jon/ros_workspaces/eecs106a-final-project/src')
+sys.path.insert(0,'/home/jon/ros_workspaces/eecs106a-final-project/src/path_planning/moveit_planner')
 
 print(sys.path)
 
 from robot_comm_msg.msg import AngleArr
 from kinematics_calculator_moveit import KinematicsCalculator
 
-from path_planning.moveit_planner.next_pt_planner import NextPointPlanner
+from next_pt_planner import NextPointPlanner
 
 #import user_input.vision as cv
 
@@ -24,7 +24,7 @@ import numpy as np
 
 joint_states = [0, 0, 0]
 
-curr_sphere_pos = np.array([0, 0, 0, 1])
+curr_sphere_pos = np.array([0, -3, 0, 1])
 
 def updateJoints(data):
     joint_states = data.position
@@ -38,7 +38,7 @@ def publish_joint_angles(pub, joint_angles):
     joint_state.header = Header()
     joint_state.header.stamp = rospy.Time.now()
     joint_state.name = ['base_rotate', 'joint1', 'joint2']
-    joint_state.position = joint_angles
+    joint_state.position = np.array(joint_angles)*np.pi/180
     pub.publish(joint_state)
 
 def cmd_angle():
@@ -72,10 +72,11 @@ def cmd_angle():
 
             #convert back to spatial g*coordinates
             sphere_coords_spatial = np.matmul(g, curr_sphere_pos)[:3]
+            
+            target_coords_spatial = next_pt_planner.get_near_point(arm_pos, sphere_coords_spatial)
+            print("target_coords_spatial", target_coords_spatial)
 
-            target_coords_spatial = next_pt_planner.get_near_point(arm_pos, sphere_coords_spatial):
-
-            angles = arm.inverse_kinematics(target_coords_spatial) 
+            angles = arm.inverse_kinematics(target_coords_spatial)
 
             publish_joint_angles(joint_pub, angles)
             print(angles)

@@ -1,2 +1,2 @@
-uint16[] angles
+int16[] angles
 float32 timestamp

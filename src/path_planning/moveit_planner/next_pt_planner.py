@@ -15,9 +15,7 @@ class NextPointPlanner():
         """
         # Can control the tradeoff between centering the ball in view vs getting closer/farther from it
         self.max_dist_per_timestep = max_dist_per_timestep
-
-        self.kinematics = KinematicsCalculator("arm")
-
+        self.base_height = 7.5
 
     def get_far_point(self, arm_pos, obj_pos):
         """
