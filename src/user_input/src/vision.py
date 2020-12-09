@@ -148,6 +148,10 @@ class CVSpheres:
     # Calibration should only need to run once, but choose a color with which to do it so we know what to look for.
     # User should be able to trigger when the photo is taken, or perhaps just use a photo already taken in (specify image name).
     def calibrate(self, cmdName, img):
+        # Store image shape
+        self.imgWidth = np.shape(img)[1]
+        self.imgHeight = np.shape(img)[0]
+
         # Find sphere in photo
         circles = self.findCircles(img)[cmdName]
         if circles is None or len(circles) == 0:
@@ -236,11 +240,8 @@ class CVSpheres:
                 # Get depth
                 depth = self.__zDistanceToCamera(2.0 * r)
                 # Convert u, v to camera coords and apply intrinsic camera matrix
-                x = np.array([u,v,1])
+                x = np.array([u - self.imgWidth / 2, v - self.imgHeight / 2, 1])
                 X = depth * np.matmul(self.invK, x) # FIXME: It's possible that invK won't exist at this point.
-                # X = depth * x
-                # Y = depth * y
-                # Z = depth
                 # Convert r to real width, if that's even necessary
                 R = (2.0 * r) / self.pixelToRealRatio
                 spheres.append(Sphere(cmdName, X[0], X[1], X[2], R, u, v))
@@ -257,7 +258,7 @@ class CVSpheres:
 
     def step(self, display=True):
         img = self.takePhoto(ui=False)
-        img = self.undistort(img) # FIXME: Comment out this line if undistortion gets wonky!
+        # img = self.undistort(img) # FIXME: Comment out this line if undistortion gets wonky!
         circles = self.findCircles(img, largestOnly=True, showImgs=display, live=display)
         spheres = self.findSpheres(circles)
         transformedSpheres = []
