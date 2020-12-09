@@ -101,9 +101,7 @@ class KinematicsCalculator():
     """
     joint_angles- [theta1, theta2, theta3, theta4] in degrees
                 for base_rotate, joint1, joint2, and joint3
-    returns (position, angle)
-      where position is [x, y, z] in spatial coordinates. in cm
-            and angle is in euler angles [roll, pitch, yaw]
+    returns 4x4 homogenous matrix
     """
     joint_angles = np.array(joint_angles) * np.pi / 180
 
@@ -111,15 +109,7 @@ class KinematicsCalculator():
     g = prod_exp(self.xis, np.array(joint_angles))
     g_ee = g.dot(self.g0) # pose of end effector
 
-    quaternion = tf.transformations.quaternion_from_matrix(g_ee)
-    euler = tf.transformations.euler_from_quaternion(quaternion)
-
-    pos = g_ee[:3,3]
-
-    # Return degrees
-    euler = np.array(euler) * 180 / np.pi # radians to degrees
-
-    return pos, euler
+    return g_ee
 
 def main():
   """
@@ -128,12 +118,14 @@ def main():
   """
   #group = moveit_commander.MoveGroupCommander('arm')
 
+  # won't work anymore b/c syntax
 
   kinematics = KinematicsCalculator("arm")
   import time
   
   starttime = time.time()
-  pos, rotation = kinematics.forward_kinematics([45, 30, 20])
+  g = kinematics.forward_kinematics([45, 30, 20])
+
   print('fk result', pos, rotation)
   print('fk time', time.time() - starttime)
 
@@ -143,4 +135,4 @@ def main():
 
 if __name__ == '__main__':
   rospy.init_node('moveit_node')
-  main()
+  #main()
