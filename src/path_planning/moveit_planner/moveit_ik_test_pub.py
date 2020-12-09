@@ -5,8 +5,6 @@ Author: Tiffany Cappellari
 """
 import sys
 
-from baxter_interface import Limb
-
 import rospy
 import numpy as np
 import traceback
@@ -15,10 +13,6 @@ from moveit_msgs.msg import OrientationConstraint
 from geometry_msgs.msg import PoseStamped
 
 from path_planner import PathPlanner
-
-# Uncomment this line for part 5 of Lab 5
-from controller import Controller
-from baxter_interface import Limb
 
 import moveit_commander
 from moveit_msgs.msg import RobotState
