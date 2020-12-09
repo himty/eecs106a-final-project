@@ -35,7 +35,7 @@ class Sphere:
         self.pos2d = np.array((u, v))
 
     def toString(self):
-        return f"{self.cmdName} of radius {self.r} at spatial ({self.x}, {self.y}, {self.z}) and at camera ({self.u}, {self.v})"
+        return self.cmdName + " of radius " + str(self.r) + " at spatial (" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ") and at camera (" + str(self.u) + ", " + str(self.v) + ")"
 
 class CVSpheres:
     def __init__(self, hardwareCameraId, knownWidth, knownDistance, *commandColors):
@@ -61,7 +61,7 @@ class CVSpheres:
             knownDistance = data['knownDistance']
             commandColors = []
             for c in data['commandColors']:
-                cmd = CommandColor(c['name'], c['minColor'], c['maxColor'])
+                cmd = CommandColor(c['name'], np.array(c['minColor']), np.array(c['maxColor']))
                 commandColors.append(cmd)
             chessboardImgsPath = data['chessboardImgsPath']
             sphereCalibrationImgPath = data['sphereCalibrationImgPath']
@@ -141,7 +141,7 @@ class CVSpheres:
         # Find sphere in photo
         circles = self.findCircles(img)[cmdName]
         if circles is None or len(circles) == 0:
-            print(f"Failed to calibrate {cmdName}: could not find any circles of that type.")
+            print("Failed to calibrate " + cmdName + ": could not find any circles of that type.")
             return False # Failed
         
         # Get width (or bbox, or center and radius) of sphere
@@ -152,7 +152,6 @@ class CVSpheres:
         return True # Succeeded
 
     def findCircles(self, img, largestOnly=False, showImgs=False, live=False):
-        # ret, frame = self.cap.read()
         hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         
         masks = dict()
@@ -165,6 +164,8 @@ class CVSpheres:
         maskMainImgs = []
         imgOutputs = []
         maskImgs = []
+
+        timeStr = time.strftime("%Y/%m/%d-%H:%M:%S")
 
         for name, cmd in self.commandColors.items():
             masks[name] = cv2.inRange(hsv_img, cmd.minColor, cmd.maxColor)
@@ -185,7 +186,7 @@ class CVSpheres:
             myCircles = cv2.HoughCircles(maskImg, cv2.HOUGH_GRADIENT, 1.2, houghMinDistance) # TODO: Tweak these parameters further
             myCircles = myCircles if myCircles is None else myCircles[0]
             if myCircles is None:
-                print(f"No circles found for command {name}")
+                print("[" + timeStr + "] No circles found for command " + name)
 
             if largestOnly and myCircles is not None:
                 # Select the circle with the largest radius
