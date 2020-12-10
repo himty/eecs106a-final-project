@@ -67,8 +67,7 @@ class CVSpheres:
             chessboardImgsPath = data['chessboardImgsPath']
             sphereCalibrationImgPath = data['sphereCalibrationImgPath']
             sphereCalibrationCmdName = data['sphereCalibrationCmdName']
-            isIncremental = data['isIncremental']
-            isIncremental = True if isIncremental is None else isIncremental
+            isIncremental = True if 'isIncremental' not in data else data['isIncremental']
             cvs = CVSpheres(hardwareCameraId, knownWidth, knownDistance, commandColors, isIncremental=isIncremental)
             cvs.calibrateCameraMatrix(chessboardImgsPath)
             cvs.calibrate(sphereCalibrationCmdName, cv2.imread(sphereCalibrationImgPath, 1))
@@ -325,7 +324,7 @@ if __name__ == '__main__':
     
     KNOWN_WIDTH = 3.4925 # cm
     KNOWN_DISTANCE = 5.08 # cm
-    cvs = CVSpheres(0, KNOWN_WIDTH, KNOWN_DISTANCE, [ccBlueShinyDay], isIncremental=False) # Currently only supports all objects being the same size.
+    cvs = CVSpheres(0, KNOWN_WIDTH, KNOWN_DISTANCE, [ccBlueShinyDay, ccLimeMatteDay], isIncremental=False) # Currently only supports all objects being the same size.
     cvs.calibrateCameraMatrix('/Users/jessiemindel/Downloads/chessboard_calibrate')
     cvs.calibrate('testBlue', cv2.imread('/Users/jessiemindel/Downloads/blue-sphere-calibrate-b2.jpg', 1))
 
