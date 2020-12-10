@@ -1,0 +1,15 @@
+{
+	"hardwareCameraId": 0,
+	"knownWidth": 4,
+	"knownDistance": 15,
+	"chessboardImgsPath": "/home/jon/Desktop/chessboards",
+	"sphereCalibrationImgPath": "/home/jon/Desktop/dist.png",
+	"sphereCalibrationCmdName": "green",
+	"commandColors": [
+		{
+			"name": "green",
+			"minColor": [70, 78, 101],
+			"maxColor": [97, 214, 255]
+		}
+	]
+}
