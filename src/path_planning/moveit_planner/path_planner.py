@@ -77,7 +77,9 @@ class PathPlanner(object):
         Outputs:
         path: A moveit_msgs/RobotTrajectory path
         """
-        self._group.set_goal_orientation_tolerance(1)
+        self._group.set_goal_orientation_tolerance(10)
+        self._group.set_goal_joint_tolerance(1)
+        self._group.set_goal_position_tolerance(1)
         self._group.set_pose_target(target)
         self._group.set_start_state_to_current_state()
 

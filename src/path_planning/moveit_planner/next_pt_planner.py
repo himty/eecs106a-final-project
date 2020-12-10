@@ -109,7 +109,7 @@ class NextPointPlanner():
             # Find a target position
             # Sweep until the theoretical travel distance is large enough to give a real solution
             target_pos = None
-            for c in np.arange(self.max_dist_per_timestep, self.max_dist_per_timestep*5, 0.1):
+            for c in np.arange(self.max_dist_per_timestep, self.max_dist_per_timestep*100, 0.1):
                 radicand = get_radicand(c)
                 if radicand is not None:
                     target_pos = get_sol(radicand) + offset
