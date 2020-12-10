@@ -18,6 +18,7 @@ class NextPointPlanner():
         self.base_height = 7.5
         self.l1 = 10
         self.l2 = 12
+        self.max_mag = self.l1+self.l2-2
 
     def get_far_point(self, arm_pos, obj_pos):
         """
@@ -83,8 +84,8 @@ class NextPointPlanner():
                 # c_ is only used in radicand, which is given
 
                 # quadratic formula
-                b1 = min(self.l1+self.l2, max(-(self.l1+self.l2), (-b_ + np.sqrt(radicand)) / (2*a_)))
-                b2 = min(self.l1+self.l2, max(-(self.l1+self.l2), (-b_ - np.sqrt(radicand)) / (2*a_)))
+                b1 = min(self.max_mag, max(-self.max_mag, (-b_ + np.sqrt(radicand)) / (2*a_)))
+                b2 = min(self.max_mag, max(-self.max_mag, (-b_ - np.sqrt(radicand)) / (2*a_)))
 
                 # b1 and b2 are magnitudes. They lie along the line from offset origin to the offset obj
                 if get_closer:

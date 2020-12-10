@@ -119,13 +119,16 @@ def main():
   """
   #group = moveit_commander.MoveGroupCommander('arm')
 
-  # won't work anymore b/c syntax
 
   kinematics = KinematicsCalculator("arm")
+
   import time
   
   starttime = time.time()
   g = kinematics.forward_kinematics([45, 30, 20])
+
+  pos = g[:3, 3]
+  rotation = tf.transformations.euler_from_matrix(g)
 
   print('fk result', pos, rotation)
   print('fk time', time.time() - starttime)
@@ -136,4 +139,4 @@ def main():
 
 if __name__ == '__main__':
   rospy.init_node('moveit_node')
-  #main()
+  main()
