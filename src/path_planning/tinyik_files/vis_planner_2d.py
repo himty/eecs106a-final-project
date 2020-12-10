@@ -78,6 +78,10 @@ class OnClick2D():
         self.ax[2].set_xlabel('x')
         self.ax[2].set_ylabel('y')
 
+        self.axrandobj = plt.axes([0.93, 0.3, 0.065, 0.075])
+        self.brandobj = Button(self.axrandobj, "Rand Obj")
+        self.brandobj.on_clicked(self.rand_obj_onclick)
+
         self.axobjreset = plt.axes([0.93, 0.2, 0.065, 0.075])
         self.bobjreset = Button(self.axobjreset, "Reset Obj")
         self.bobjreset.on_clicked(self.obj_reset_onclick)
@@ -98,6 +102,24 @@ class OnClick2D():
         }
 
         self.done = True
+
+    def rand_obj_onclick(self, event):
+        if self.ee_pos is None:
+            return
+
+        self.obj_pos = self.ee_pos + np.random.uniform(-7, 7, size=(3))
+        [p.remove() for p in self.obj_pts]
+        [p.remove() for p in self.plan_pts]
+        self.obj_pts = []
+        self.plan_pts = []
+
+        self.plot_planner_pts()
+
+
+        for axis in range(3):
+            self.ax[axis].legend()
+
+        plt.pause(0.1)
 
     def obj_reset_onclick(self, event):
         if self.obj_pos is None:

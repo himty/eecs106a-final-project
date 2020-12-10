@@ -39,36 +39,36 @@ class NextPointPlanner():
 
         # Need to turn instead of just clipping
         print('unit before', unit)
-        if mag < self.min_mag + 1:
-            if not np.isclose(unit[2], 0, atol=1):
-                print('z boost')
-                # Change z to lift upwards
-                if get_closer:
-                    if arm_pos[2] > obj_pos[2]:
-                        unit[2] -= self.z_boost
-                    else:
-                        unit[2] += self.z_boost
-                else:
-                    if arm_pos[2] > obj_pos[2]:
-                        unit[2] += self.z_boost
-                    else:
-                        unit[2] -= self.z_boost
-            else:
-                print('xy boost')
-                # TODO opposite side of the middle base determines direction 
-                boost_dir = (obj_pos - self.offset)[:2]
-                boost_dir /= np.linalg.norm(boost_dir)
-                if get_closer:
-                    unit[0] += boost_dir[0] * self.xy_boost
-                    unit[1] += boost_dir[1] * self.xy_boost
-                else:
-                    unit[0] -= boost_dir[0] * self.xy_boost
-                    unit[1] -= boost_dir[1] * self.xy_boost
+        # if mag < self.min_mag + 1:
+        #     if not np.isclose(unit[2], 0, atol=1):
+        #         print('z boost')
+        #         # Change z to lift upwards
+        #         if get_closer:
+        #             if arm_pos[2] > obj_pos[2]:
+        #                 unit[2] -= self.z_boost
+        #             else:
+        #                 unit[2] += self.z_boost
+        #         else:
+        #             if arm_pos[2] > obj_pos[2]:
+        #                 unit[2] += self.z_boost
+        #             else:
+        #                 unit[2] -= self.z_boost
+        #     else:
+        #         print('xy boost')
+        #         # TODO opposite side of the middle base determines direction 
+        #         boost_dir = (obj_pos - self.offset)[:2]
+        #         boost_dir /= np.linalg.norm(boost_dir)
+        #         if get_closer:
+        #             unit[0] += boost_dir[0] * self.xy_boost
+        #             unit[1] += boost_dir[1] * self.xy_boost
+        #         else:
+        #             unit[0] -= boost_dir[0] * self.xy_boost
+        #             unit[1] -= boost_dir[1] * self.xy_boost
 
             # boost or decrease the component to turn
             
-            print('unit after', unit)
-            unit = unit / np.linalg.norm(unit)
+            # print('unit after', unit)
+            # unit = unit / np.linalg.norm(unit)
 
         clipped = np.clip(mag, self.min_mag, self.max_mag)*unit + self.offset
 
@@ -82,7 +82,7 @@ class NextPointPlanner():
         Get target end effector position that's farther from the object than before
         using absolute coordinates, relative to the true base frame
         """
-        return self._get_close_or_far_point_face_obj(arm_pos, obj_pos, get_closer=False)
+        return self._get_close_or_far_point_no_face_obj(arm_pos, obj_pos, get_closer=False)
 
     def get_near_point(self, arm_pos, obj_pos):
         """
