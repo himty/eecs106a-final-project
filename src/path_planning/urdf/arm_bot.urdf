@@ -103,7 +103,7 @@
     <child link="link1"/>
     <origin rpy="0 0 0" xyz="0 0 7.5"/>
     <axis xyz="1 0 0"/>
-    <limit effort="100" lower="-3.14" upper="3.14" velocity="3"/>
+    <limit effort="100" lower="0" upper="3.14" velocity="3"/>
     <!-- Effort is between 0 and 100 (units are %) and velocity is radians per second -->
   </joint>
   <joint name="joint2" type="revolute">
@@ -111,7 +111,7 @@
     <child link="link2"/>
     <origin rpy="0 0 0" xyz="0 10 0"/>
     <axis xyz="1 0 0"/>
-    <limit effort="100" lower="-3.14" upper="3.14" velocity="3"/>
+    <limit effort="100" lower="-1.57" upper="1.57" velocity="3"/>
     <!-- Effort is between 0 and 100 (units are %) and velocity is radians per second -->
   </joint>
   <joint name="end_effector_joint" type="fixed">

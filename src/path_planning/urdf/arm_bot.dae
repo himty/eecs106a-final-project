@@ -4,8 +4,8 @@
 		<contributor>
 			<authoring_tool>URDF Collada Writer</authoring_tool>
 		</contributor>
-		<created>2020-12-07T15:58:40.000000</created>
-		<modified>2020-12-07T15:58:40.000000</modified>
+		<created>2020-12-09T16:44:20.000000</created>
+		<modified>2020-12-09T16:44:20.000000</modified>
 		<unit/>
 		<up_axis>Z_UP</up_axis>
 	</asset>
@@ -348,7 +348,7 @@
 					<revolute sid="axis0">
 						<axis>1 0 0</axis>
 						<limits>
-							<min>-179.9087476710785</min>
+							<min>0</min>
 							<max>179.9087476710785</max>
 						</limits>
 					</revolute>
@@ -357,8 +357,8 @@
 					<revolute sid="axis0">
 						<axis>1 0 0</axis>
 						<limits>
-							<min>-179.9087476710785</min>
-							<max>179.9087476710785</max>
+							<min>-89.95437383553924</min>
+							<max>89.95437383553924</max>
 						</limits>
 					</revolute>
 				</joint>
@@ -544,7 +544,7 @@
 						</locked>
 						<limits>
 							<min>
-								<float>-179.9087476710785</float>
+								<float>0</float>
 							</min>
 							<max>
 								<float>179.9087476710785</float>
@@ -560,10 +560,10 @@
 						</locked>
 						<limits>
 							<min>
-								<float>-179.9087476710785</float>
+								<float>-89.95437383553924</float>
 							</min>
 							<max>
-								<float>179.9087476710785</float>
+								<float>89.95437383553924</float>
 							</max>
 						</limits>
 					</axis_info>
