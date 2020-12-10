@@ -33,7 +33,7 @@ class NextPointPlanner():
         to_obj = rel_obj_pos - rel_arm_pos
         to_obj = to_obj / np.linalg.norm(to_obj)
 
-        return arm_pos - self.max_dist_per_timestep*to_obj
+        return arm_pos - self.max_dist_per_timestep*to_obj + offset
 
     def get_near_point(self, arm_pos, obj_pos):
         """
