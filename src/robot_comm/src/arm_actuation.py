@@ -28,13 +28,13 @@ from next_pt_planner import NextPointPlanner
 
 import numpy as np
 
-joint_states = [0, 90, -50]
-#joint_states = [0, 0, 0]
+#joint_states = [0, 90, -50]
+joint_states = [0, 90, -90]
 
-seen_sphere = True
+seen_sphere = False
 
-curr_sphere_pos = np.array([-2, 0, 0, 1])
-curr_sphere_cmd = "far"
+curr_sphere_pos = np.array([0, 0, 0, 1])
+curr_sphere_cmd = "near"
 
 def updateJoints(data):
     global joint_states
@@ -53,7 +53,7 @@ def updateSpheres(data):
 
     #currently color based: curr_sphere_cmd = curr_sphere.cmd_name
     #hardcode:
-    curr_sphere_cmd = "far"
+    #curr_sphere_cmd = "near"
     seen_sphere = True
 
 def publish_joint_angles(pub, joint_angles):
@@ -102,7 +102,7 @@ def cmd_angle():
 
     rospy.Subscriber("joint_states", JointState, updateJoints)
     joint_pub = rospy.Publisher("joint_states", JointState, queue_size=10)
-    publish_joint_angles(joint_pub, [0, 0, 0])
+    publish_joint_angles(joint_pub, joint_states)
 
     rospy.Subscriber("vision_spheres", StampedCommandSpheres, updateSpheres)
 
@@ -144,6 +144,22 @@ def cmd_angle():
             x = -curr_sphere_pos[0]
             y = curr_sphere_pos[2]
             z = curr_sphere_pos[1]
+            
+            # FAR BASE
+            # x=-7 CCW
+            # x=7 CW
+
+            # NEAR Tilt
+            # z = 7 UP
+            # z = -7 DOWN
+
+            # NEAR Extend
+            # y = 7 extend
+            # y = -7 retract
+
+            x = 7
+            y = 0
+            z = 0
 
             print("SPHERE END EFFECTOR")
             print([x, y, z])
@@ -166,8 +182,8 @@ def cmd_angle():
                 continue
 
             startTime = time.time()
-            #angles = arm.inverse_kinematics(target_coords_spatial)
-            angles = dumb_ik()
+            angles = arm.inverse_kinematics(target_coords_spatial)
+            #angles = dumb_ik()
 
             print("TIME-----------------")
             print(time.time() - startTime)
@@ -181,7 +197,13 @@ def cmd_angle():
             angles = angles.astype(np.int16).tolist()
             print(angles)
 
+            #angles[0] = 0
+            #angles[1] = 90
+            #angles[2] = -90
+
+            angles[0] = -angles[0]
             angles[2] = angles[2] + 90
+
             pub_string = AngleArr(angles, rospy.get_time())
             pub.publish(pub_string)
 
