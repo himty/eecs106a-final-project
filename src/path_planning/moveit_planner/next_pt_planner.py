@@ -25,7 +25,15 @@ class NextPointPlanner():
         Get target end effector position that's farther from the object than before
         using absolute coordinates, relative to the true base frame
         """
-        return self._get_close_or_far_point(arm_pos, obj_pos, get_closer=False)
+        # Don't care about facing the object anymore
+        offset = np.array([0, 0, self.base_height])
+        rel_arm_pos = arm_pos - offset
+        rel_obj_pos = obj_pos - offset
+
+        to_obj = rel_obj_pos - rel_arm_pos
+        to_obj = to_obj / np.linalg.norm(to_obj)
+
+        return arm_pos - self.max_dist_per_timestep*to_obj
 
     def get_near_point(self, arm_pos, obj_pos):
         """
