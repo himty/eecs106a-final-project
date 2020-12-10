@@ -13,32 +13,19 @@ import time
 sys.path.insert(0,'/home/jon/ros_workspaces/eecs106a-final-project/src/path_planning/moveit_planner')
 sys.path.insert(0,'/home/jon/ros_workspaces/eecs106a-final-project/src/path_planning/moveit_planner')
 
-print(sys.path)
-
 from robot_comm_msg.msg import AngleArr
-
 from stamped_command_spheres_msg.msg import StampedCommandSpheres
 from command_sphere_msg.msg import CommandSphere
-
 from kinematics_calculator_moveit import KinematicsCalculator
-
 from next_pt_planner import NextPointPlanner
-
-#import user_input.vision as cv
-
 import numpy as np
 
-#joint_states = [0, 90, -50]
-joint_states = [0, 90, -90]
+joint_states = np.array([-90, 90, -90])
 
 seen_sphere = False
 
 curr_sphere_pos = np.array([0, 0, 0, 1])
 curr_sphere_cmd = "near"
-
-def updateJoints(data):
-    global joint_states
-    joint_states = np.array(data.position)*180/np.pi
 
 def updateSpheres(data):
     global curr_sphere_pos, curr_sphere_cmd, seen_sphere
@@ -56,13 +43,20 @@ def updateSpheres(data):
     #curr_sphere_cmd = "near"
     seen_sphere = True
 
-def publish_joint_angles(pub, joint_angles):
+def publish_joint_states(joint_pub, arm_pub):
+    global joint_states
+
     joint_state = JointState()
     joint_state.header = Header()
     joint_state.header.stamp = rospy.Time.now()
     joint_state.name = ['base_rotate', 'joint1', 'joint2']
-    joint_state.position = np.array(joint_angles)*np.pi/180
-    pub.publish(joint_state)
+    joint_state.position = joint_states*np.pi/180
+    joint_pub.publish(joint_state)
+
+    angles = joint_states.astype(np.int16).tolist()
+    angles[0] = -angles[0]
+    angles[2] = angles[2] + 90
+    arm_pub.publish(AngleArr(angles, rospy.get_time()))
 
 def dumb_ik():
     global joint_states
@@ -95,42 +89,39 @@ def dumb_ik():
 
     return np.array(joint_states)
 
-
 def cmd_angle():
-    global seen_sphere
+    global seen_sphere, joint_states
     #callibration sequence launched from CV node
 
-    rospy.Subscriber("joint_states", JointState, updateJoints)
     joint_pub = rospy.Publisher("joint_states", JointState, queue_size=10)
-    publish_joint_angles(joint_pub, joint_states)
-
     rospy.Subscriber("vision_spheres", StampedCommandSpheres, updateSpheres)
+    arm_pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
 
-    pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
-    
-    r = rospy.Rate(10) # 10hz
+    r = rospy.Rate(1) # 10hz
+
+    publish_joint_states(joint_pub, arm_pub)
+    r.sleep()
 
     arm = KinematicsCalculator('arm')
-
     next_pt_planner = NextPointPlanner(max_dist_per_timestep=2)
 
     while not rospy.is_shutdown():
-
-        #raw_input('Press enter to actuate arm:')
-
         try:
             if not seen_sphere:
                 continue
 
             seen_sphere = False
+
             print("joint_states")
             print(joint_states)
 
             g = arm.forward_kinematics(joint_states)
+
             print("g")
             print(g)
 
             arm_pos = g[:3, 3]
+
             print("arm_pos")
             print(arm_pos)
 
@@ -141,9 +132,9 @@ def cmd_angle():
             # y = z
             # z = y
 
-            x = -curr_sphere_pos[0]
-            y = curr_sphere_pos[2]
-            z = curr_sphere_pos[1]
+            # x = -curr_sphere_pos[0]
+            # y = curr_sphere_pos[2]
+            # z = curr_sphere_pos[1]
             
             # FAR BASE
             # x=-7 CCW
@@ -157,9 +148,9 @@ def cmd_angle():
             # y = 7 extend
             # y = -7 retract
 
-            x = 7
-            y = 0
-            z = 0
+            x = -curr_sphere_pos[0] * 7
+            y = 0 # curr_sphere_pos[2]
+            z = curr_sphere_pos[1] * 7
 
             print("SPHERE END EFFECTOR")
             print([x, y, z])
@@ -181,31 +172,15 @@ def cmd_angle():
             if target_coords_spatial is None:
                 continue
 
-            startTime = time.time()
-            angles = arm.inverse_kinematics(target_coords_spatial)
+            new_joint_states = arm.inverse_kinematics(target_coords_spatial)
             #angles = dumb_ik()
 
-            print("TIME-----------------")
-            print(time.time() - startTime)
-
-            if angles is None:
+            if new_joint_states is None:
                 continue
 
-            publish_joint_angles(joint_pub, angles)
-            print(angles)
+            joint_states = new_joint_states
 
-            angles = angles.astype(np.int16).tolist()
-            print(angles)
-
-            #angles[0] = 0
-            #angles[1] = 90
-            #angles[2] = -90
-
-            angles[0] = -angles[0]
-            angles[2] = angles[2] + 90
-
-            pub_string = AngleArr(angles, rospy.get_time())
-            pub.publish(pub_string)
+            publish_joint_states(joint_pub, arm_pub)
 
             r.sleep()
             
