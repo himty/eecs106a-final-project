@@ -50,15 +50,21 @@ class NextPointPlanner():
         # TODO only return points that the arm can reach (defined in self.joint_angle_ranges)
 
         dist_to_obj = np.linalg.norm(arm_pos - obj_pos)
+        offset = np.array([0, 0, self.base_height])
         if get_closer and dist_to_obj < self.max_dist_per_timestep:
-            return obj_pos
+            obj_rel = obj_pos - offset
+            # Make sure the target position is not out of range
+            obj_rel_dist = min(self.max_mag, max(-self.max_mag, np.linalg.norm(obj_rel)))
+            obj_rel_vec = obj_rel_dist * (obj_rel) / np.linalg.norm(obj_rel)
+            obj_vec = obj_rel_vec + offset
+
+            return obj_vec
         else:
             # Law of cosines is
             # c^2 = a^2 + b^2 - 2*a*b*cos(angle opposite to C)
             # where a and b surround <angle opposite to C>
 
             # Want to calculate rotations relative to the first x-axis rotary joint
-            offset = np.array([0, 0, self.base_height])
             rel_arm_pos = arm_pos - offset
             rel_obj_pos = obj_pos - offset
 
