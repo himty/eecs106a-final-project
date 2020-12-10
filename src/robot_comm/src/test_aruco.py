@@ -39,8 +39,8 @@ class ArucoDetector():
                     cv2.circle(frame, (x_loc, y_loc), 1, GREEN, thickness=4, lineType=8, shift=0)
                     
                     curr_sphere_pos = np.array([
-                        (-1 if x_loc > frame.shape[1]/2 else 1) * 7, 
-                        (-1 if y_loc > frame.shape[0]/2 else 1) * 7, 
+                        (1 if x_loc > frame.shape[1]/2 else -1), 
+                        (1 if y_loc > frame.shape[0]/2 else -1), 
                         0
                     ])
         
@@ -49,8 +49,9 @@ class ArucoDetector():
         # Is None if any of the above fails
         return curr_sphere_pos
 
-aruco_detector = ArucoDetector()
-while True:
-    curr_sphere_pos = aruco_detector.get_pos()
-    print('curr sphere pos', curr_sphere_pos)
-    cv2.waitKey(5)
+if __name__ == "__main__":
+    aruco_detector = ArucoDetector()
+    while True:
+        curr_sphere_pos = aruco_detector.get_pos()
+        print('curr sphere pos', curr_sphere_pos)
+        cv2.waitKey(5)

@@ -19,6 +19,8 @@ from command_sphere_msg.msg import CommandSphere
 from kinematics_calculator_moveit import KinematicsCalculator
 from next_pt_planner import NextPointPlanner
 import numpy as np
+import cv2
+
 
 from test_aruco import ArucoDetector
 
@@ -112,11 +114,14 @@ def cmd_angle():
     if detect_mode == "aruco":
         aruco_detector = ArucoDetector()
 
+    print("hey")
+
     while not rospy.is_shutdown():
         try:
             if detect_mode == "aruco":
                 # Run the detector in this loop for simplicity
                 aruco_pos = aruco_detector.get_pos()
+                cv2.waitKey(5)
                 if aruco_pos is not None:
                     curr_sphere_pos = aruco_pos
                     seen_sphere = True
@@ -166,7 +171,7 @@ def cmd_angle():
 
             x = -curr_sphere_pos[0] * 7
             y = 0 # curr_sphere_pos[2]
-            z = curr_sphere_pos[1] * 7
+            z = -curr_sphere_pos[1] * 7
 
             print("SPHERE END EFFECTOR")
             print([x, y, z])
