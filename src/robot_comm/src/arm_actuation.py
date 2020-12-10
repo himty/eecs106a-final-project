@@ -28,9 +28,9 @@ from next_pt_planner import NextPointPlanner
 
 import numpy as np
 
-#joint_states = [54, 152, -40]
-joint_states = [0, 0, 0]
-seen_sphere = False
+joint_states = [0, 120, -50]
+#joint_states = [0, 0, 0]
+seen_sphere = True
 
 curr_sphere_pos = np.array([-2, 0, 0, 1])
 curr_sphere_cmd = "far"
@@ -65,16 +65,23 @@ def publish_joint_angles(pub, joint_angles):
 
 def dumb_ik():
     global joint_states
+
     x = curr_sphere_pos[0]
     y = curr_sphere_pos[1]
     z = curr_sphere_pos[2]
 
     if x > 0:
-        joint_states[0] += 5
+        joint_states[0] -= 2
     elif x < 0:
-        joint_states[0] -= 5
+        joint_states[0] += 2
 
-    joint_states[0] = max(0, min(180, joint_states[0]))
+    if y > 0:
+        joint_states[1] += 1
+    elif y < 0:
+        joint_states[1] -= 1
+
+    joint_states[0] = max(-90, min(90, joint_states[0]))
+    joint_states[1] = max(0, min(180, joint_states[1]))
 
     return np.array(joint_states)
 
@@ -91,7 +98,7 @@ def cmd_angle():
 
     pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
     
-    r = rospy.Rate(10) # 10hz
+    r = rospy.Rate(.5) # 10hz
 
     arm = KinematicsCalculator('arm')
 
@@ -149,8 +156,8 @@ def cmd_angle():
                 continue
 
             startTime = time.time()
-            angles = arm.inverse_kinematics(target_coords_spatial)
-            #angles = dumb_ik()
+            #angles = arm.inverse_kinematics(target_coords_spatial)
+            angles = dumb_ik()
 
             print("TIME-----------------")
             print(time.time() - startTime)
