@@ -20,12 +20,16 @@ from kinematics_calculator_moveit import KinematicsCalculator
 from next_pt_planner import NextPointPlanner
 import numpy as np
 
+from test_aruco import ArucoDetector
+
 joint_states = np.array([-90, 90, -90])
 
 seen_sphere = False
 
 curr_sphere_pos = np.array([0, 0, 0, 1])
 curr_sphere_cmd = "near"
+
+detect_mode = "aruco" # aruco or sphere
 
 def updateSpheres(data):
     global curr_sphere_pos, curr_sphere_cmd, seen_sphere
@@ -105,8 +109,20 @@ def cmd_angle():
     arm = KinematicsCalculator('arm')
     next_pt_planner = NextPointPlanner(max_dist_per_timestep=2)
 
+    if detect_mode == "aruco":
+        aruco_detector = ArucoDetector()
+
     while not rospy.is_shutdown():
         try:
+            if detect_mode == "aruco":
+                # Run the detector in this loop for simplicity
+                aruco_pos = aruco_detector.get_pos()
+                if aruco_pos is not None:
+                    curr_sphere_pos = aruco_pos
+                    seen_sphere = True
+                else:
+                    seen_sphere = False                    
+
             if not seen_sphere:
                 continue
 
