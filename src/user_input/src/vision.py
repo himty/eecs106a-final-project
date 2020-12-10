@@ -248,8 +248,8 @@ class CVSpheres:
                     uCentered = u - self.imgWidth / 2
                     vCentered = v - self.imgHeight / 2
 
-                    uThreshold = 1/8 * self.imgWidth
-                    vThreshold = 1/8 * self.imgHeight
+                    uThreshold = 1/4 * self.imgWidth
+                    vThreshold = 1/4 * self.imgHeight
 
                     # print(uThreshold, uCentered, vThreshold, vCentered)
                     x = (1.0 if np.abs(uCentered) > uThreshold else 0.0) * np.sign(uCentered)

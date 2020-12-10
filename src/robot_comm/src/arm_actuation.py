@@ -28,8 +28,9 @@ from next_pt_planner import NextPointPlanner
 
 import numpy as np
 
-joint_states = [0, 120, -50]
+joint_states = [0, 90, -50]
 #joint_states = [0, 0, 0]
+
 seen_sphere = True
 
 curr_sphere_pos = np.array([-2, 0, 0, 1])
@@ -76,12 +77,21 @@ def dumb_ik():
         joint_states[0] += 2
 
     if y > 0:
-        joint_states[1] += 1
+        joint_states[1] += 2
     elif y < 0:
-        joint_states[1] -= 1
+        joint_states[1] -= 2
+
+    if z > 15:
+        joint_states[1] -= .5
+        joint_states[2] += .5
+    else:
+        joint_states[1] += .5
+        joint_states[2] -= .5
+
 
     joint_states[0] = max(-90, min(90, joint_states[0]))
     joint_states[1] = max(0, min(180, joint_states[1]))
+    joint_states[2] = max(-90, min(90, joint_states[2]))
 
     return np.array(joint_states)
 
@@ -98,7 +108,7 @@ def cmd_angle():
 
     pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
     
-    r = rospy.Rate(.5) # 10hz
+    r = rospy.Rate(10) # 10hz
 
     arm = KinematicsCalculator('arm')
 
