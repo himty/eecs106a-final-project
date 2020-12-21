@@ -1,5 +1,19 @@
 # Path Planning
 
+# Pure trig version
+
+No ROS dependencies!
+
+## Running the system
+
+To get next target point given current end effector position and command sphere location:
+- Use `NextPointPlanner` in moveit_planner/next_pt_planner.py
+- No roslaunches necessary
+
+To get forward/inverse kinematics
+- Initialize `KinematicsCalculator()` from `moveit_planner/kinematics_calculator_trig.py`
+- Call inverse_kinematics() or forward_kinematics() :D
+
 # Moveit! IKFast version
 
 ## Installation to change the ikfast solver (NOT necessary for running the output of ikfast)
