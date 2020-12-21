@@ -10,8 +10,7 @@ from std_msgs.msg import Header
 from sensor_msgs.msg import JointState
 import time
 
-sys.path.insert(0,'/home/jon/ros_workspaces/eecs106a-final-project/src/path_planning/moveit_planner')
-sys.path.insert(0,'/home/jon/ros_workspaces/eecs106a-final-project/src/path_planning/moveit_planner')
+sys.path.insert(0,'/home/jon/ros_workspaces/eecs106a-final-project/src/path_planning/planner')
 
 from robot_comm_msg.msg import AngleArr
 from stamped_command_spheres_msg.msg import StampedCommandSpheres

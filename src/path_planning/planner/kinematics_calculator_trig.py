@@ -53,22 +53,18 @@ class KinematicsCalculator():
 
     rel_init_pos = in_2d_plane(self.g0[:3, 3] - self.offset, positive=True)
 
+    # Get angle for joint 1
     joint1_angle_top = safe_arccos((self.l1**2 + rel_arm_mag**2 - self.l2**2) / (2*self.l1*rel_arm_mag))
     joint1_angle_bot = get_angle_2d(rel_init_pos, rel_arm_pos)
     if joint1_angle_bot < 0 and rel_arm_pos[0] < 0:
         joint1_angle_bot += np.pi*2
 
-    if pos[2] >= self.base_height:
-        if bend_forward:
-            joint1_angle = joint1_angle_top + joint1_angle_bot
-        else:
-            joint1_angle = joint1_angle_bot - joint1_angle_top
+    if bend_forward:
+        joint1_angle = joint1_angle_top + joint1_angle_bot
     else:
-        if bend_forward:
-            joint1_angle = joint1_angle_top + joint1_angle_bot
-        else:
-            joint1_angle = joint1_angle_bot - joint1_angle_top
+        joint1_angle = joint1_angle_bot - joint1_angle_top
 
+    # Get angle for joint 2
     joint2_angle_inv = safe_arccos((self.l1**2 + self.l2**2 - rel_arm_mag**2) / (2*self.l1*self.l2))
     if bend_forward:
         joint2_angle = -(np.pi - joint2_angle_inv)
