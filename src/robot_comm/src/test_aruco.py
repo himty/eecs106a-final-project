@@ -1,6 +1,7 @@
 import numpy as np
 from cv2 import aruco
 import cv2
+import rospy
 
 import threading
 class CameraBufferCleanerThread(threading.Thread):
@@ -11,7 +12,7 @@ class CameraBufferCleanerThread(threading.Thread):
         self.start()
 
     def run(self):
-        while True:
+        while not rospy.is_shutdown():
             ret, self.last_frame = self.camera.read()
 
 # Defined colors
@@ -21,23 +22,23 @@ BLUE = (255, 0, 0)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-cap = cv2.VideoCapture(0)
-cap_cleaner = CameraBufferCleanerThread(cap)
-
-aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
-parameters =  aruco.DetectorParameters_create()
-
 class ArucoDetector():
     def __init__(self):
         self.ref_id = None # Set this when the first id is read
 
+        self.cap = cv2.VideoCapture(0)
+        self.cap_cleaner = CameraBufferCleanerThread(self.cap)
+
+        self.aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
+        self.parameters =  aruco.DetectorParameters_create()
+
     def get_pos(self):
         curr_sphere_pos = None
-        frame = cap_cleaner.last_frame
+        frame = self.cap_cleaner.last_frame
 
         if frame is not None:
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
+            corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, self.aruco_dict, parameters=self.parameters)
 
             if ids is not None:
                 if self.ref_id is None:

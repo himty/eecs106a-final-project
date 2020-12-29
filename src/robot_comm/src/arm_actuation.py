@@ -21,10 +21,9 @@ from next_pt_planner import NextPointPlanner
 import numpy as np
 import cv2
 
-
 from test_aruco import ArucoDetector
 
-joint_states = np.array([-90, 90, -90])
+joint_states = np.array([-90, 110, -80])
 
 seen_sphere = False
 
@@ -72,38 +71,41 @@ def dumb_ik():
     z = curr_sphere_pos[2]
 
     if x > 0:
-        joint_states[0] -= 2
-    elif x < 0:
         joint_states[0] += 2
+    elif x < 0:
+        joint_states[0] -= 2
 
     if y > 0:
-        joint_states[1] += 2
-    elif y < 0:
         joint_states[1] -= 2
+    elif y < 0:
+        joint_states[1] += 2
 
-    if z > 15:
-        joint_states[1] -= .5
-        joint_states[2] += .5
-    else:
-        joint_states[1] += .5
-        joint_states[2] -= .5
+    #if z > 15:
+    #    joint_states[1] -= .5
+    #    joint_states[2] += .5
+    #else:
+    #    joint_states[1] += .5
+    #    joint_states[2] -= .5
 
 
     joint_states[0] = max(-90, min(90, joint_states[0]))
     joint_states[1] = max(0, min(180, joint_states[1]))
     joint_states[2] = max(-90, min(90, joint_states[2]))
 
+    print("HACK")
+    print(joint_states)
+
     return np.array(joint_states)
 
 def cmd_angle():
-    global seen_sphere, joint_states
+    global seen_sphere, joint_states, curr_sphere_pos
     #callibration sequence launched from CV node
 
     joint_pub = rospy.Publisher("joint_states", JointState, queue_size=10)
     rospy.Subscriber("vision_spheres", StampedCommandSpheres, updateSpheres)
     arm_pub = rospy.Publisher('cmd_angle', AngleArr, queue_size=10)
 
-    r = rospy.Rate(1) # 10hz
+    r = rospy.Rate(10) # 10hz
 
     publish_joint_states(joint_pub, arm_pub)
     r.sleep()
@@ -169,9 +171,9 @@ def cmd_angle():
             # y = 7 extend
             # y = -7 retract
 
-            x = -curr_sphere_pos[0] * 7
+            x = -curr_sphere_pos[0] * 3
             y = 0 # curr_sphere_pos[2]
-            z = -curr_sphere_pos[1] * 7
+            z = -curr_sphere_pos[1] * 3
 
             print("SPHERE END EFFECTOR")
             print([x, y, z])
@@ -193,8 +195,8 @@ def cmd_angle():
             if target_coords_spatial is None:
                 continue
 
-            new_joint_states = arm.inverse_kinematics(target_coords_spatial)
-            #angles = dumb_ik()
+            #new_joint_states = arm.inverse_kinematics(target_coords_spatial)
+            new_joint_states = dumb_ik()
 
             if new_joint_states is None:
                 continue
