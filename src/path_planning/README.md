@@ -1,5 +1,18 @@
 # Path Planning
 
+# Pure trig version
+
+No ROS dependencies!
+
+## Running the system
+
+To get next target point given current end effector position and command sphere location:
+- Use `NextPointPlanner` in planner/next_pt_planner.py
+
+To get forward/inverse kinematics
+- Initialize `KinematicsCalculator()` from `planner/kinematics_calculator_trig.py`
+- Call inverse_kinematics() or forward_kinematics() :D
+
 # Moveit! IKFast version
 
 ## Installation to change the ikfast solver (NOT necessary for running the output of ikfast)
@@ -73,14 +86,14 @@ sudo apt-get install ros-kinetic-joint-state-publisher-gui
 ## Running the system
 
 To get next target point given current end effector position and command sphere location:
-- Use `NextPointPlanner` in moveit_planner/next_pt_planner.py
+- Use `NextPointPlanner` in planner/next_pt_planner.py
 - No roslaunches necessary
 
 To get forward/inverse kinematics
 - (One terminal) `roscore`
 - (Another terminal) `roslaunch path_planning arm_bot_publish_moveit.launch`
 - (Yet another terminal) Publish JointState messages to the `/joint_states` topic (for example, run `rosrun path_planning moveit_ik_test_pub.py`)
-- Initialize `KinematicsCalculator('arm')` from `moveit_planner/kinematics_calculator_moveit.py`, where arm is the group name of the arm_bot's arm joints
+- Initialize `KinematicsCalculator('arm')` from `planner/kinematics_calculator_moveit.py`, where arm is the group name of the arm_bot's arm joints
 - Call inverse_kinematics() or forward_kinematics() :D (may take about 0.2-0.3 seconds to return)
 
 # tinyik version
@@ -95,9 +108,9 @@ Alternatively, cd to this folder and do `pip install -r requirements.txt` for ex
 
 ### Visualization
 
-2D visualization looking down on the robot: `python vis_planner_2d.py` (a z coordinate is hardcoded in the code)
+2D visualization looking down on the robot: `python vis/vis_planner_2d.py` (a z coordinate is hardcoded in the code)
 
-3D visualization: `python vis_planner_3d.py` (may take 2 seconds between actions because inverse kinematics runs slower on a multithreading thread :c)
+3D visualization: `python vis/vis_planner_3d.py` (may take 2 seconds between actions because inverse kinematics runs slower on a multithreading thread :c)
 - To make the first joint of the robot show up, you have to modify the tinyik source code (division by 0 D:)
 - Go to somewhere like `/Users/himty/miniconda3/envs/proj106a/lib/python3.8/site-packages/tinyik/visualization.py` (see a root path by importing tinyik then printing `tinyik.__file__`)
 - Replace `base = np.array([0., 0, norm])` on line 80 with `base = np.array([0., 1e-12, norm])`

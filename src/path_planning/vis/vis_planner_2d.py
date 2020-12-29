@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
-import tinyik
 import numpy as np
 import sys
-sys.path.insert(0, "/Users/himty/Desktop/Serious_Stuff/UC_Berkeley/3_Junior/EECS 106A/eecs106a-final-project/src/path_planning/moveit_planner")
+sys.path.insert(0, "/Users/himty/Desktop/Serious_Stuff/UC_Berkeley/3_Junior/EECS 106A/eecs106a-final-project/src/path_planning/planner")
 from next_pt_planner import NextPointPlanner
+from kinematics_calculator_trig import KinematicsCalculator
 
 class OnClick2D():
     def __init__(self, planner):
@@ -19,17 +19,7 @@ class OnClick2D():
         self.l1 = 10
         self.l2 = 12
 
-        # 'z' and 'x' are rotation axes.
-        # Each array is the length of the joint between rotation axes
-        # I don't think this library supports prismatic joints? 
-        self.arm = tinyik.Actuator([
-                'z',
-                [0, 0, self.base_height],
-                'x',
-                [0, self.l1, 0],
-                'x',
-                [0, self.l2, 0],
-            ])
+        self.kinematics = KinematicsCalculator()
 
         self.plan_pts = []
         self.ee_pts = []
@@ -205,16 +195,14 @@ class OnClick2D():
         self.near_pos = self.planner.get_near_point(self.ee_pos, self.obj_pos)
         print("Near pos:", self.near_pos)
         if self.near_pos is not None:
-            self.arm.ee = self.near_pos
-            print("Near pos's joint angles:", self.arm.angles)
+            print("Near pos's joint angles:", self.kinematics.inverse_kinematics(self.near_pos))
         else:
             print("WARNING: near_pos returned None for ee_pos {} and obj_pos {}".format(self.ee_pos, self.obj_pos))
 
         self.far_pos = self.planner.get_far_point(self.ee_pos, self.obj_pos)
         print("Far pos:", self.far_pos)
         if self.far_pos is not None:
-            self.arm.ee = self.far_pos
-            print("Far pos's joint angles:", self.arm.angles)
+            print("Far pos's joint angles:", self.kinematics.inverse_kinematics(self.far_pos))
         else:
             print("WARNING: far_pos returned None for ee_pos {} and obj_pos {}".format(self.ee_pos, self.obj_pos))
 

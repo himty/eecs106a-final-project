@@ -176,39 +176,6 @@ class VisPlanner3D():
 
         return geos
 
-    # I don't know how to update an existing geometry
-    # def update_joint_geometries(self, ee_pos):
-    #     """
-    #     Get joint geometries when the end effector is at ee_pos
-
-    #     ee_pos- (x, y, z) target position of the end effector
-    #     """
-    #     self.arm.ee = ee_pos
-
-    #     # Assume the vis joints correspond to the first few geometries in self.geos
-    #     mat = np.eye(4)
-    #     for geo, vis_component in zip(self.geos, self.vis_components):
-    #         print(type(geo), type(vis_component), type(vis_component.c))
-    #         if type(vis_component) is tinyik.visualizer.Link:
-    #             norm = np.linalg.norm(vis_component.c.coord)
-    #             base = np.array([0., 0., norm])
-    #             cross = np.cross(base, self.c.coord)
-    #             axis = cross / np.linalg.norm(cross)
-    #             angle = np.arccos(np.dot(base, self.c.coord) / (norm ** 2))
-    #             geo.transform(mat @ tinyik.visualizer.rotate(axis, angle) @ translate(base / 2))
-    #         elif type(vis_component) is tinyik.visualizer.Joint:
-    #             rx = {
-    #                 'x': [0., 1., 0.],
-    #                 'y': [1., 0., 0.],
-    #                 'z': [0., 0., 1.],
-    #             }
-    #             geo.transform(mat @ tinyik.visualizer.rotate(rx[vis_component.c.axis], np.pi / 2))
-    #         else:
-    #             raise ValueError('Unknown vis_component type {}! Did the order in self.geos get messed up?' \
-    #                     .format(type(vis_component)))
-
-    #         mat = mat @ vis_component.mat()
-
 def visualize_3d(render_links):
     # Rendering updates are asynchronous in this thread
     vis_3d = VisPlanner3D(render_links)
@@ -216,9 +183,6 @@ def visualize_3d(render_links):
     while True:
         vis_3d.vis.poll_events()
         vis_3d.vis.update_renderer()
-
-    # o3d.visualization.draw_geometries(
-    #     geos, window_name='tinyik vizualizer', width=640, height=480)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
